@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
 import { useFrame } from "@react-three/fiber"
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
@@ -6,14 +6,6 @@ import * as THREE from 'three'
 
 const ChainCylinders = ({ parts, setExportRef }) => {
     const[points,setPoints] = useState([])
-    // const [draggingIndex, setDraggingIndex] = useState(-1)
-
-    // useEffect(() => {
-    //     const handlePointerUp = () => setDraggingIndex(-1)
-    //     window.addEventListener('pointerup', handlePointerUp)
-    //     return () => window.removeEventListener('pointerup', handlePointerUp)
-
-    // })
 
     const tubeRef = useRef(null)
     const bodyRefs = useRef([])
@@ -22,7 +14,7 @@ const ChainCylinders = ({ parts, setExportRef }) => {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
     }
 
-    useFrame(({ camera, mouse: mousePos}) => {
+    useFrame(() => {
         setPoints(bodyRefs.current.map(ref => {
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
@@ -40,12 +32,10 @@ const ChainCylinders = ({ parts, setExportRef }) => {
 
             const position = [ midX, midY, 0]
 
-            const prev = index > 0 ? `chain_${index}` : null
-
             const rotation = [0,0, part.angle]
             return (
                 <>
-                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={5} angularDamping={5}
+                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={0} angularDamping={0}
                     position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
                         <mesh key={index} rotation={rotation}>
                             <boxGeometry args={[part.length,100,1]} />

@@ -53,15 +53,15 @@ const Threedy = ({ svgData }) => {
     return (
         <>
             <Canvas style={{height: window.innerHeight, width: window.innerWidth}}>
-            <PerspectiveCamera makeDefault position={[0, 0, 700]} />
-            <ambientLight intensity={0.4} />
-            <directionalLight color="red" position={[0, 0, 5]} />
-            <directionalLight color="red" position={[0, 5, 0]} />
-            <Physics gravity={[0,0,0]} >
-                <ChainCylinders parts={parts} setExportRef={setExportRef}/>
-            </Physics>
-            
-            {orbitControlsEnabled ? <Controls /> : <></>}
+                <PerspectiveCamera makeDefault position={[0, 0, 700]} />
+                <ambientLight intensity={0.4} />
+                <directionalLight color="red" position={[0, 0, 5]} />
+                <directionalLight color="red" position={[0, 5, 0]} />
+                <Physics gravity={[0,0,0]} >
+                    <ChainCylinders parts={parts} setExportRef={setExportRef}/>
+                </Physics>
+                
+                {orbitControlsEnabled ? <Controls /> : <></>}
             </Canvas>
             <div style={{position: `absolute`, top: 0, right: 0}}>
             <label htmlFor={`controls`}>Controls:</label> 

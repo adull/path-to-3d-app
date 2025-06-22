@@ -37,7 +37,10 @@ const Draw = ({ setSvgData }) => {
     }, [display])
 
     const erase = () => {
+        console.log(`this is hooked up`)
         const project = paper.project
+
+        console.log({ al: project.activeLayer.children })
         const layer = project._children[0]
         const path = layer._children[0]
         path.segments = []
