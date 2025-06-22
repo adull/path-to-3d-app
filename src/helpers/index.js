@@ -15,34 +15,39 @@ const extractPathData = (str) => {
     return indexD > 0 && indexCloseQuote > 0 ? sliced.slice(0, indexCloseQuote) : decoded
 }
 
-const propertiesToParts = (properties) => {
+
+// this takes an array properties which comes from npm library svg-path-properties
+// bless this library's heart - the idea is great but it creates pretty low res
+// results. in particular it does a bad job around "inflection points"
+// this function runs the library's .getParts() function and then also figures out the parts of the results that need higher 
+const propertiesToParts = ({ properties, interval }) => {
     const _parts = properties.getParts()
-        const ipl = properties.inst.partial_lengths
-        _parts.push(ipl[ipl.length])
+    const ipl = properties.inst.partial_lengths
+    _parts.push(ipl[ipl.length])
 
-        const interval = 150
-        const numSamples = Math.ceil(properties.getTotalLength() / interval)
+    // const interval = 150
+    const numSamples = Math.ceil(properties.getTotalLength() / interval)
 
-        let prevAngle = null
-        let tolerance = Math.PI / 180 * 5 
-        const controlPoints = []
+    let prevAngle = null
+    let tolerance = Math.PI / 180 * 5 
+    const controlPoints = []
 
-        for (let i = 0; i <= numSamples; i++) {
-            const len = i * interval
-            const tangent = properties.getTangentAtLength(len)
-            const angle = Math.atan2(tangent.y, tangent.x)
+    for (let i = 0; i <= numSamples; i++) {
+        const len = i * interval
+        const tangent = properties.getTangentAtLength(len)
+        const angle = Math.atan2(tangent.y, tangent.x)
 
-            if (prevAngle !== null) {
-                const delta = Math.abs(angle - prevAngle)
-                if (delta > tolerance) {
-                controlPoints.push(len)
-                }
+        if (prevAngle !== null) {
+            const delta = Math.abs(angle - prevAngle)
+            if (delta > tolerance) {
+            controlPoints.push(len)
             }
-
-            prevAngle = angle
         }
 
-        const additionalPoints = []
+        prevAngle = angle
+    }
+
+    const additionalPoints = []
 
     controlPoints.forEach(len => {
       for (let offset = -5; offset <= 5; offset++) {
@@ -58,8 +63,6 @@ const propertiesToParts = (properties) => {
     .sort((a, b) => a - b)
 
     const parts = []
-    console.log(`now were in properties to parts`)
-    console.log({ parts })
 
     
     for(let i = 0; i < allLengths.length -1; i ++) {
@@ -82,10 +85,6 @@ const propertiesToParts = (properties) => {
         length,
         angle,
       })
-      console.log(`this should be an arr`)
-      console.log({ parts })
-
-      
     }
     return parts
 }

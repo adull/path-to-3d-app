@@ -24,8 +24,9 @@ const Threedy = ({ svgData }) => {
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         
-        // propertiesToParts returns an array
-        const _parts = propertiesToParts(properties)
+        // propertiesToParts returns an array. 
+        // Changing the value of interval increases the resolution but can result in choppiness in framerate for 3js
+        const _parts = propertiesToParts({ properties, interval: 150})
         console.log({ _parts })
         setParts(_parts)
 
