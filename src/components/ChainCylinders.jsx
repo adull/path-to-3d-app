@@ -1,5 +1,5 @@
-import React, { useRef, useState, useMemo } from 'react'
-import { useFrame } from "@react-three/fiber"
+import React, { useRef, useState, useMemo, useEffect } from 'react'
+import { useFrame, Body } from "@react-three/fiber"
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import * as THREE from 'three'
@@ -13,6 +13,13 @@ const ChainCylinders = ({ parts, setExportRef }) => {
     if(bodyRefs.current.length !== parts.length) {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
     }
+
+    const DAMPING_AMT = 50
+
+    // const damping = parts.length > DAMPING_AMT ? parts.length / (parts.length / DAMPING_AMT) :  parts.length * (parts.length / DAMPING_AMT)
+
+    // console.log({ damping })
+    let whatever = 0
 
     useFrame(() => {
         setPoints(bodyRefs.current.map(ref => {
@@ -35,32 +42,32 @@ const ChainCylinders = ({ parts, setExportRef }) => {
             const rotation = [0,0, part.angle]
             return (
                 <>
-                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={0} angularDamping={0}
-                    position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
+                    <Body key={index} ref={bodyRefs.current[index]} linearDamping={50} angularDamping={50}
+                               position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
                         <mesh key={index} rotation={rotation}>
                             <boxGeometry args={[part.length,100,1]} />
                             <meshStandardMaterial 
                             transparent opacity={0} 
                             />
                         </mesh>
-                    </RigidBody>
+                    </Body>
                     {index < parts.length ?  
-                    <RopeJointBetween
-                        key={`joint-${index}`}
-                        length={part.length}
-                        bodyA={bodyRefs.current[index]}
-                        bodyB={bodyRefs.current[index + 1]}
-                    />
-                    :
-                    <></>
+                        <RopeJointBetween
+                            key={`joint-${index}`}
+                            length={part.length}
+                            bodyA={bodyRefs.current[index]}
+                            bodyB={bodyRefs.current[index + 1]}
+                        />
+                        :
+                        <></>
                     }
                 </>
             )
         })}
-        {curve && points.length > 0 && true && (
+        {curve && points.length > 0 && (
             <RigidBody colliders="cuboid">
                 <mesh ref={tubeRef}>
-                    <primitive object={new THREE.TubeGeometry(curve, 100, 1.1, 5    , false)} />
+                    <primitive object={new THREE.TubeGeometry(curve, 100, 1.1, 5, false)} />
                     <meshStandardMaterial color="orange" />
                 </mesh>
             </RigidBody>

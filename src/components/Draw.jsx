@@ -9,7 +9,8 @@ const Draw = ({ setSvgData }) => {
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
         let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
-        if(height < width) height = window.innerHeight / 2
+        if(height > width) height = window.innerHeight / 2
+        console.log({ width, height })
         setDisplay({ width, height })
         
         // setPath(new paper.Path({ strokeColor: 'black', strokeWidth: 2 }))
@@ -51,12 +52,14 @@ const Draw = ({ setSvgData }) => {
             <canvas 
                 id="paper"
                 width={display.width}
-                height={500}
+                height={display.height}
                 ref={childRef}
                 style={{ 
                     position: `relative`, 
                     top: 0,
                     left: 0, 
+                    // width: display.width,
+                    height: display.height,
                     border: '1px solid black' 
                 }}
             >                
