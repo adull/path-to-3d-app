@@ -57,7 +57,9 @@ const Threedy = ({ svgData }) => {
                 <ambientLight intensity={0.4} />
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
-                <ChainCylinders parts={parts} setExportRef={setExportRef}/>
+                <Physics gravity={[0,0,0]} >
+                    <ChainCylinders parts={parts} setExportRef={setExportRef} />
+                </Physics>
                 
                 {orbitControlsEnabled ? <Controls /> : <></>}
             </Canvas>
