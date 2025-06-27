@@ -1,14 +1,23 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react'
+import { getMaxVals } from '../helpers/index'
 import { useFrame } from "@react-three/fiber"
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import * as THREE from 'three'
 
-const ChainCylinders = ({ parts, setExportRef }) => {
+const ChainCylinders = ({ parts, cb }) => {
     const[points,setPoints] = useState([])
 
     const tubeRef = useRef(null)
     const bodyRefs = useRef([])
+
+    // useEffect(() => {
+    //     setPoints(bodyRefs.current.map(ref => {
+    //         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
+    //             const pos = ref.current?.translation()
+    //             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
+    //     }))
+    // }, [parts])
 
     if(bodyRefs.current.length !== parts.length) {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
@@ -18,36 +27,44 @@ const ChainCylinders = ({ parts, setExportRef }) => {
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         }))
-
-        let [minX, minY, minZ] = [0,0,0]
-        let [maxX,maxY,maxZ] = [0,0,0]
-        if(bodyRefs.current.length > 0) { 
-            const first = bodyRefs.current[0];
-            [minX, minY, minZ] = [first.x, first.y, first.z]
-        }   
-        
-        bodyRefs.current.forEach(item => {
-            console.log({ item }) 
-            const it = item.current.translation();
-            if(it.x < minX) minX = it.x
-            if(it.y < minY) minY = it.y
-            if(it.z < minZ) minZ = it.z
-            if(it.x > maxX) maxX = it.x
-            if(it.y > maxY) maxY = it.y
-            if(it.z > maxZ) maxZ = it.z
-        })
-
-        console.log({ minX, maxX})
-        console.log({ minY, maxY})
-        console.log({ minZ, maxZ})
-
-        
     }
+
+        
+        // bodyRefs.current.forEach(async(item) =>  {
+        //     console.log(item) 
+            // item.current?.sleep()
+            // const {x, y,z} = await item.current?.translation();
+            // let [x, y, z] = [0,0,0]
+            // console.log(item.current)
+            // if(item.current?.translation()) {
+            //     let it = item.current.translation()
+            //     x = it.x
+            //     y = it.y
+            //     z = it.z
+            // }
+            // console.log({ x, y, z})
+            // item.current.setLinvel({ x: 0, y: 0, z: 0 }, true); // linear velocity
+            // item.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+            
+            // if(x < minX) minX = x
+            // if(y < minY) minY = y
+            // if(z < minZ) minZ = z
+            // if(x > maxX) maxX = x
+            // if(y > maxY) maxY = y
+            // if(z > maxZ) maxZ = z
+        // })
+
+        // console.log({ minX, maxX})
+        // console.log({ minY, maxY})
+        // console.log({ minZ, maxZ})
+
+        
+    // }
 
     useFrame(() => {
         setPoints(bodyRefs.current.map(ref => {
-            ref.current?.lockTranslations()
-            ref.current?.lockRotations()
+            // ref.current?.lockTranslations()
+            // ref.current?.lockRotations()
 
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
@@ -55,7 +72,13 @@ const ChainCylinders = ({ parts, setExportRef }) => {
     })
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-    setExportRef(tubeRef)
+    console.log({ curve })
+    // const { minX, maxX, minY, maxY } = getMaxVals(curve)
+    // maxvals is of shape { minX, maxX, minY, maxY}
+    const maxVals = getMaxVals(curve)
+    // moveCamera(getMaxVals(curve))
+    // setExportRef(tubeRef)
+    cb(maxVals, tubeRef)
 
     return (
         <>

@@ -16,6 +16,7 @@ import ChainCylinders from './ChainCylinders'
 
 const Threedy = ({ svgData }) => {
     const [parts, setParts] = useState([])
+    const [camPos, setCamPos] = useState({ x: 0, y: 0, z: 0 })
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
     const [exportRef, setExportRef] = useState(null)
 
@@ -49,16 +50,33 @@ const Threedy = ({ svgData }) => {
         link.download = 'model.obj'
         link.click()
     }
+
+    // const moveCamera = ({ minX, maxX, minY, maxY}) => {
+    //     console.log({ minX, maxX, minY, maxY })
+    // }
+
+    const moveCamera = (maxVals) => {
+        console.log({ maxVals })
+    }
+
+    const cbfn = ({ exportRef, maxVals}) => {
+        // params are for functions:
+        // setExportRef, moveCamera
+        setExportRef(exportRef)
+        moveCamera(maxVals)
+    }
     
     return (
         <>
             <Canvas style={{height: window.innerHeight, width: window.innerWidth}}>
-                <PerspectiveCamera makeDefault position={[0, 0, 700]} />
+                <PerspectiveCamera makeDefault position={[camPos.x, camPos.y, camPos.z]} />
                 <ambientLight intensity={0.4} />
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} setExportRef={setExportRef} />
+                    <ChainCylinders parts={parts} cb={cbfn}
+                    // setExportRef={setExportRef} 
+                    />
                 </Physics>
                 
                 {orbitControlsEnabled ? <Controls /> : <></>}

@@ -89,4 +89,24 @@ const propertiesToParts = ({ properties, interval }) => {
     return parts
 }
 
-export { extractPathData, propertiesToParts}
+const getMaxVals = (curve) => {
+    let [minX, minY] = [Infinity, Infinity]
+    let [maxX, maxY] = [-Infinity, -Infinity]
+    let [x, y] = [0,0]
+    curve.points.forEach(point => {
+        // console.log({ point })
+        x = point.x
+        y = point.y
+
+        if(x < minX) { minX = x } 
+        if(x > maxX) { maxX = x }
+        if(y < minY) { minY = y }
+        if(y > maxY) { maxY = y }
+    })
+    
+    
+
+    return {minX , maxX, minY, maxY}
+}
+
+export { extractPathData, propertiesToParts, getMaxVals }
