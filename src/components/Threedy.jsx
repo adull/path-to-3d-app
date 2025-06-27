@@ -16,7 +16,7 @@ import ChainCylinders from './ChainCylinders'
 
 const Threedy = ({ svgData }) => {
     const [parts, setParts] = useState([])
-    const [camPos, setCamPos] = useState({ x: 0, y: 0, z: 0 })
+    const [camPos, setCamPos] = useState({ x: 0, y: 0, z: 700 })
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
     const [exportRef, setExportRef] = useState(null)
 
@@ -56,14 +56,17 @@ const Threedy = ({ svgData }) => {
     // }
 
     const moveCamera = (maxVals) => {
-        console.log({ maxVals })
+        // console.log({ maxVals })
+        const lol  = 700 + Math.random() * 50
+        console.log({ lol })
+        setCamPos({ x: 0, y: 0, z: lol})
     }
 
     const cbfn = ({ exportRef, maxVals}) => {
         // params are for functions:
         // setExportRef, moveCamera
         setExportRef(exportRef)
-        moveCamera(maxVals)
+        // moveCamera(maxVals)
     }
     
     return (
@@ -74,9 +77,7 @@ const Threedy = ({ svgData }) => {
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} cb={cbfn}
-                    // setExportRef={setExportRef} 
-                    />
+                    <ChainCylinders parts={parts} cb={cbfn} />
                 </Physics>
                 
                 {orbitControlsEnabled ? <Controls /> : <></>}
