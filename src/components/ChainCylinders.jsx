@@ -72,7 +72,7 @@ const ChainCylinders = ({ parts, cb }) => {
     })
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-    console.log({ curve })
+    // console.log({ curve })
     // const { minX, maxX, minY, maxY } = getMaxVals(curve)
     // maxvals is of shape { minX, maxX, minY, maxY}
     const maxVals = getMaxVals(curve)

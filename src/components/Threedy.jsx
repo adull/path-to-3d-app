@@ -35,6 +35,7 @@ const Threedy = ({ svgData }) => {
         // console.log({ pathData })
     }, [svgData])
 
+
     const download = () => {
         const exporter = new OBJExporter()
         console.log(exportRef)
@@ -57,9 +58,10 @@ const Threedy = ({ svgData }) => {
 
     const moveCamera = (maxVals) => {
         // console.log({ maxVals })
-        const lol  = 700 + Math.random() * 50
-        console.log({ lol })
-        setCamPos({ x: 0, y: 0, z: lol})
+        console.log(`this should only fire when the drawing changes`)
+        // const lol  = 700 + Math.random() * 50
+        // console.log({ lol })
+        // setCamPos({ x: 0, y: 0, z: lol})
     }
 
     const cbfn = ({ exportRef, maxVals}) => {

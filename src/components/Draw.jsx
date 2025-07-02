@@ -1,10 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { paper } from 'paper'
+import { useTrigger } from '../contexts/TriggerContext'
 
 const Draw = ({ setSvgData }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
+
+    const { triggerFn } = useTrigger();
 
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
@@ -25,6 +28,7 @@ const Draw = ({ setSvgData }) => {
 
         const updateSvg = () => {
             const svgData = path.exportSVG({ asString: true })
+            triggerFn();
             setSvgData(svgData)
         }
 
