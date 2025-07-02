@@ -29,6 +29,7 @@ const Threedy = ({ svgData }) => {
         // Changing the value of interval increases the resolution but can result in choppiness in framerate for 3js
         const _parts = propertiesToParts({ properties, interval: 150})
         console.log({ _parts })
+        console.log(`omg`)
         setParts(_parts)
 
 
