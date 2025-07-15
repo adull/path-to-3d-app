@@ -18,7 +18,7 @@ import * as THREE from 'three'
 const Threedy = ({ svgData }) => {
     const [parts, setParts] = useState([])
     const [camPos, setCamPos] = useState({ x: 0, y: 0, z: 700 })
-    const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
+    const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(false)
     const [exportRef, setExportRef] = useState(null)
     const [boxPos, setBoxPos] = useState({ x: 0, y: 0, z: 0 })
 
@@ -34,6 +34,8 @@ const Threedy = ({ svgData }) => {
 
 
     useEffect(() => {
+        setOrbitControlsEnabled(false)
+        console.log(`when does svgdata useeffect fire?`)
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         
@@ -94,7 +96,19 @@ const Threedy = ({ svgData }) => {
                 // const yPos = (maxVals.minY + maxVals.maxY) / 2
 
                 console.log({ x: targetPos.x, y: targetPos.y })
-                // console.log({ controlsRef })
+                console.log({ controlsRef })
+                if(controlsRef?.current) {
+                    controlsRef.current.enabled = false
+
+                }
+                // setOrbitControlsEnabled(false)
+                // setTimeout(() => {
+                //     cam.position.set(targetPos.x, targetPos.y, cameraZ)
+                //     setOrbitControlsEnabled(true);
+                //     setTimeout(() => {
+
+                //     })
+                // })
                 // controlsRef.current.target.set(targetPos.x, targetPos.y, 0)
                 // controlsRef.current.position0.set(targetPos.x, targetPos.y, cameraZ)
 
@@ -109,19 +123,15 @@ const Threedy = ({ svgData }) => {
 
                 if (orbitControlsEnabled && controlsRef?.current) {
                     controlsRef.current.target.set(targetPos.x, targetPos.y, 0);
-                    cam.position.set(targetPos.x, targetPos.y, cameraZ);
+                    // cam.position.set(targetPos.x, targetPos.y, cameraZ);
                     controlsRef.current.update();
+                    controlsRef.current.saveState()
+
                 }
+                // controlsRef.current.enabled = true
             }
         }
         
-    }
-
-    const getCamPos = () => {
-        const cam = camRef.current
-
-        const position = cam?.position
-        console.log({ position })
     }
 
     return (
@@ -134,19 +144,18 @@ const Threedy = ({ svgData }) => {
                 <Physics gravity={[0,0,0]} >
                     <ChainCylinders parts={parts} focusPath={focusPath} />
                 </Physics>
-                <mesh ref={meshRef} position={[boxPos.x,boxPos.y,boxPos.z]}>
+                <mesh ref={meshRef} position={[boxPos.x,boxPos.y,0]}>
                     <boxGeometry args={[boxDim.x, boxDim.y, boxDim.z]} />
                     <meshStandardMaterial color="orange" />
                 </mesh>
                 
-                {orbitControlsEnabled ? <Controls ref={controlsRef} /> : <></>}
+                {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
             </Canvas>
             <div style={{position: `absolute`, top: 0, right: 0}}>
             <label htmlFor={`controls`}>Controls:</label> 
             <input id="controls" type={`checkbox`} checked={orbitControlsEnabled} onChange={() => setOrbitControlsEnabled(!orbitControlsEnabled)}/>
             <button style={{backgroundColor: 'white', color: 'black'}} onClick={download}>Download</button>
             </div>
-            <button onClick={getCamPos} style={{position: `absolute`, top: 0, left: 0}}>getCamPos</button>
         </>
     );
     }
