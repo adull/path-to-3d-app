@@ -10,7 +10,7 @@ import Footer from './components/Footer';
 
 const App = () => {
   useEffect(() => {
-      console.log(`yerr`)
+      // console.log(`yerr`)
   }, []);
   return (
     <>

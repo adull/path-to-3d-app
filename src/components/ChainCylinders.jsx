@@ -1,23 +1,15 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react'
-import { getMaxVals } from '../helpers/index'
+import { getMaxVals, alt } from '../helpers/index'
 import { useFrame } from "@react-three/fiber"
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import * as THREE from 'three'
 
-const ChainCylinders = ({ parts, cb }) => {
+const ChainCylinders = ({ parts, focusPath }) => {
     const[points,setPoints] = useState([])
 
     const tubeRef = useRef(null)
     const bodyRefs = useRef([])
-
-    // useEffect(() => {
-    //     setPoints(bodyRefs.current.map(ref => {
-    //         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
-    //             const pos = ref.current?.translation()
-    //             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
-    //     }))
-    // }, [parts])
 
     if(bodyRefs.current.length !== parts.length) {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
@@ -29,56 +21,37 @@ const ChainCylinders = ({ parts, cb }) => {
         }))
     }
 
-        
-        // bodyRefs.current.forEach(async(item) =>  {
-        //     console.log(item) 
-            // item.current?.sleep()
-            // const {x, y,z} = await item.current?.translation();
-            // let [x, y, z] = [0,0,0]
-            // console.log(item.current)
-            // if(item.current?.translation()) {
-            //     let it = item.current.translation()
-            //     x = it.x
-            //     y = it.y
-            //     z = it.z
-            // }
-            // console.log({ x, y, z})
-            // item.current.setLinvel({ x: 0, y: 0, z: 0 }, true); // linear velocity
-            // item.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
-            
-            // if(x < minX) minX = x
-            // if(y < minY) minY = y
-            // if(z < minZ) minZ = z
-            // if(x > maxX) maxX = x
-            // if(y > maxY) maxY = y
-            // if(z > maxZ) maxZ = z
-        // })
+    useEffect(() => {
 
-        // console.log({ minX, maxX})
-        // console.log({ minY, maxY})
-        // console.log({ minZ, maxZ})
-
-        
-    // }
-
-    useFrame(() => {
-        setPoints(bodyRefs.current.map(ref => {
+        // console.log({ parts })
+        const _pts = bodyRefs.current.map(ref => {
             // ref.current?.lockTranslations()
             // ref.current?.lockRotations()
 
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
-        }))
-    })
+        })
+        setPoints(_pts)
+
+        const maxVals = alt(_pts)
+        // console.log({maxVals})
+        focusPath(maxVals)
+
+        // const maxVals = getMaxVals()
+        // cb(maxVals, tubeRef)
+        
+        // console.log({ points })
+
+        
+
+    }, [parts])
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-    console.log({ curve })
-    // const { minX, maxX, minY, maxY } = getMaxVals(curve)
-    // maxvals is of shape { minX, maxX, minY, maxY}
-    const maxVals = getMaxVals(curve)
-    // moveCamera(getMaxVals(curve))
-    // setExportRef(tubeRef)
-    cb(maxVals, tubeRef)
+
+    // console.log(curve)
+    // const maxVals = getMaxVals(curve)
+    // cb(maxVals, tubeRef)
+    // console.log(`rener?`)
 
     return (
         <>

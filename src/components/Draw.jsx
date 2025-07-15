@@ -10,7 +10,7 @@ const Draw = ({ setSvgData }) => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
         let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
         if(height > width) height = window.innerHeight / 2
-        console.log({ width, height })
+        // console.log({ width, height })
         setDisplay({ width, height })
         
         // setPath(new paper.Path({ strokeColor: 'black', strokeWidth: 2 }))
