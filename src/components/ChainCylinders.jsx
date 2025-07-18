@@ -22,6 +22,7 @@ const ChainCylinders = ({ parts, focusPath }) => {
     }
 
     useEffect(() => {
+        console.log({ parts})
 
         // console.log({ parts })
         const _pts = bodyRefs.current.map(ref => {
@@ -31,10 +32,19 @@ const ChainCylinders = ({ parts, focusPath }) => {
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         })
-        setPoints(_pts)
+        
 
         const maxVals = alt(_pts)
-        // console.log({maxVals})
+        console.log({maxVals})
+        console.log({ _pts })
+        const avgX = (maxVals?.maxX + maxVals?.minX) / 2
+        const avgY = (maxVals?.maxY + maxVals?.minY) / 2
+
+        const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
+
+        console.log({ newPts })
+
+        setPoints(newPts)
         focusPath(maxVals)
 
         // const maxVals = getMaxVals()
@@ -47,6 +57,7 @@ const ChainCylinders = ({ parts, focusPath }) => {
     }, [parts])
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
+    console.log({ curve})
 
     // console.log(curve)
     // const maxVals = getMaxVals(curve)

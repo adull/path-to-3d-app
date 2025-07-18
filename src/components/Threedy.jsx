@@ -36,7 +36,7 @@ const Threedy = ({ svgData }) => {
     useEffect(() => {
         // setOrbitControlsEnabled(false)
         if(controlsRef?.current) controlsRef.current.enabled = false
-        console.log(`when does svgdata useeffect fire?`)
+        // console.log(`when does svgdata useeffect fire?`)
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         
@@ -76,8 +76,6 @@ const Threedy = ({ svgData }) => {
     // }
 
     const focusPath = (maxVals) => {
-        console.log(`focuyspath cslled...`)
-        console.log({ maxVals })
         if(maxVals) {
             const offset = 1.25
             // const boundingBox = new THREE.Box3().
@@ -105,8 +103,6 @@ const Threedy = ({ svgData }) => {
                 // const xPos = (maxVals.minX + maxVals.maxX) / 2
                 // const yPos = (maxVals.minY + maxVals.maxY) / 2
 
-                console.log({ x: targetPos.x, y: targetPos.y })
-                console.log({ controlsRef })
                 // setOrbitControlsEnabled(false)
                 // setTimeout(() => {
                 //     cam.position.set(targetPos.x, targetPos.y, cameraZ)
@@ -123,7 +119,7 @@ const Threedy = ({ svgData }) => {
 
 
                 // setCamPos({ x: targetPos.x, y: targetPos.y, z: cameraZ })
-                console.log({ x: targetPos.x, y: targetPos.y, z: targetPos.z })
+                // console.log({ x: targetPos.x, y: targetPos.y, z: targetPos.z })
 
                 cam.position.set(targetPos.x, targetPos.y, cameraZ);
                 cam.updateProjectionMatrix();
@@ -153,7 +149,7 @@ const Threedy = ({ svgData }) => {
                 <Physics gravity={[0,0,0]} >
                     <ChainCylinders parts={parts} focusPath={focusPath} />
                 </Physics>
-                
+                {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
             </Canvas>
             <div style={{position: `absolute`, top: 0, right: 0}}>
             <label htmlFor={`controls`}>Controls:</label> 
