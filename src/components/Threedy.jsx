@@ -5,7 +5,7 @@ import { svgPathProperties } from 'svg-path-properties'
 import { Canvas } from '@react-three/fiber'
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 
-import Controls from './Controls'
+import { useFrame } from "@react-three/fiber"
 
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 
@@ -17,21 +17,24 @@ import * as THREE from 'three'
 
 const Threedy = ({ svgData }) => {
     const [parts, setParts] = useState([])
-    const [camPos, setCamPos] = useState({ x: 0, y: 0, z: 700 })
+    
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
     const [exportRef, setExportRef] = useState(null)
     const [boxPos, setBoxPos] = useState({ x: 0, y: 0, z: 0 })
 
-    const [boxDim, setBoxDim] = useState({ x: 15, y: 15, z: 1 })
+    
     const camRef = useRef(null)
-    const meshRef = useRef(null)
+    const gridRef = useRef(null)
     const controlsRef = useRef(null)
 
     const Controls = forwardRef((props, ref) => {
-        return <OrbitControls ref={ref} makeDefault {...props} />
+        return <OrbitControls ref={ref} autoRotateSpeed={0.2} autoRotate makeDefault {...props} />
       })
 
 
+    // useFrame(() => {
+        
+    // })
 
     useEffect(() => {
         // setOrbitControlsEnabled(false)
@@ -50,7 +53,7 @@ const Threedy = ({ svgData }) => {
         // setOrbitControlsEnabled(true)
 
 
-
+        console.log(camRef.current)
         // setTimeout(() => {
         //     setOrbitControlsEnabled(true)
         //     console.log(`ye`)
@@ -88,51 +91,21 @@ const Threedy = ({ svgData }) => {
                 
                 const xDiff  = maxVals.maxX - maxVals.minX
                 const yDiff = maxVals.maxY - maxVals.minY
-                // setBoxDim({x: xDiff, y: yDiff, z: 1})
-                setBoxDim({x: 1, y: 1, z: 1})
-
-                // setBoxPos({ x: maxVals.minX + xDiff / 2, y: maxVals.minY + yDiff / 2, z: boxPos.z})
 
                 const targetPos = { x: (maxVals.minX + maxVals.maxX) / 2, y: (maxVals.minY + maxVals.maxY) / 2, z: boxPos.z}
                 setBoxPos(targetPos)
                 
                 const maxDim = Math.max(xDiff, yDiff)
-                const fov = cam.fov * (Math.PI / 180)
+                const fov = cam.fov * (-Math.PI / -180)
                 const cameraZ = (Math.abs( maxDim / 4 * Math.tan(fov * 2))) * offset
                 
-                // const xPos = (maxVals.minX + maxVals.maxX) / 2
-                // const yPos = (maxVals.minY + maxVals.maxY) / 2
 
-                // setOrbitControlsEnabled(false)
-                // setTimeout(() => {
-                //     cam.position.set(targetPos.x, targetPos.y, cameraZ)
-                //     setOrbitControlsEnabled(true);
-                //     setTimeout(() => {
-
-                //     })
-                // })
-                // controlsRef.current.target.set(targetPos.x, targetPos.y, 0)
-                // controlsRef.current.position0.set(targetPos.x, targetPos.y, cameraZ)
-
-
-                // controlsRef.current.update()
-
-
-                // setCamPos({ x: targetPos.x, y: targetPos.y, z: cameraZ })
-                // console.log({ x: targetPos.x, y: targetPos.y, z: targetPos.z })
-
-                cam.position.set(targetPos.x, targetPos.y, cameraZ);
+                cam.position.set(targetPos.x, targetPos.y + 200, cameraZ);
                 cam.updateProjectionMatrix();
 
-
-                // if (orbitControlsEnabled && controlsRef?.current) {
-                //     controlsRef.current.target.set(500,500, 400);
-                //     // cam.position.set(165, -225, 350);
-                //     controlsRef.current.update();
-                //     controlsRef.current.saveState()
-
-                // }
-                // controlsRef.current.enabled = true
+                // update grid
+                console.log(gridRef.current)
+                gridRef.current.position.y = maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20
             }
         }
         setOrbitControlsEnabled(true)
@@ -150,6 +123,12 @@ const Threedy = ({ svgData }) => {
                     <ChainCylinders parts={parts} focusPath={focusPath} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
+                <gridHelper
+                    ref={gridRef}
+                    args={[10000, 100, '#000000', '#cccccc']}
+                    position={[0, 0, 0]}
+                    rotation={[0, -Math.PI / 2, 0]}
+                    />
             </Canvas>
             <div style={{position: `absolute`, top: 0, right: 0}}>
             <label htmlFor={`controls`}>Controls:</label> 

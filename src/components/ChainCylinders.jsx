@@ -1,15 +1,24 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react'
 import { getMaxVals, alt } from '../helpers/index'
-import { useFrame } from "@react-three/fiber"
+import { shaderMaterial } from '@react-three/drei'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import * as THREE from 'three'
+import { extend } from '@react-three/fiber'
+import { toonShader } from '../helpers/shaders'
 
 const ChainCylinders = ({ parts, focusPath }) => {
     const[points,setPoints] = useState([])
 
     const tubeRef = useRef(null)
     const bodyRefs = useRef([])
+
+    const ToonMaterial = shaderMaterial(
+        toonShader.uniforms,
+        toonShader.vertexShader,
+        toonShader.fragmentShader
+    )
+    extend({ ToonMaterial })
 
     if(bodyRefs.current.length !== parts.length) {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
@@ -102,7 +111,12 @@ const ChainCylinders = ({ parts, focusPath }) => {
             <RigidBody colliders="cuboid">
                 <mesh ref={tubeRef}>
                     <primitive object={new THREE.TubeGeometry(curve, 100, 1.1, 5, false)} />
-                    <meshStandardMaterial color="orange" />
+                    {/* <meshStandardMaterial  /> */}
+                    <toonMaterial
+                        uColor={new THREE.Color('white')}
+                        uLight={new THREE.Vector3(5, 5, 5)}
+                        />
+
                 </mesh>
             </RigidBody>
             </>
