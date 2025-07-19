@@ -48,7 +48,7 @@ const Draw = ({ setSvgData }) => {
     }
 
     return (
-        <div className="w-1/2 flex flex-col" ref={parentRef}>
+        <div className="w-full h-full flex flex-col" ref={parentRef}>
             <canvas 
                 id="paper"
                 width={display.width}

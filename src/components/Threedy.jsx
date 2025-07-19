@@ -113,8 +113,8 @@ const Threedy = ({ svgData }) => {
     }
 
     return (
-        <>
-            <Canvas style={{height: window.innerHeight, width: window.innerWidth}}>
+        <div class="w-full">
+            <Canvas>
                 <PerspectiveCamera makeDefault ref={camRef}/>
                 <ambientLight intensity={0.4} />
                 <directionalLight color="red" position={[0, 0, 5]} />
@@ -135,7 +135,7 @@ const Threedy = ({ svgData }) => {
             <input id="controls" type={`checkbox`} checked={orbitControlsEnabled} onChange={() => setOrbitControlsEnabled(!orbitControlsEnabled)}/>
             <button style={{backgroundColor: 'white', color: 'black'}} onClick={download}>Download</button>
             </div>
-        </>
+        </div>
     );
     }
 
