@@ -11,6 +11,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath }) => {
     //setting up hooks
     const[points,setPoints] = useState([])
     const [draggingIndex, setDraggingIndex] = useState(-1)
+    const [offset, setOffset] = useState({x: 0, y: 0})
 
     const tubeRef = useRef(null)
     
@@ -44,6 +45,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath }) => {
 
         const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
 
+        setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
         setPoints(newPts)
         focusPath(maxVals)
 
@@ -135,16 +137,24 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath }) => {
 
             // console.log({ point, lol: {midX, midY}})
             
+            // const position = [ midX, midY, 0]
 
-            const position = [ midX, midY, 0]
-
+            const position = [ midX - offset.x, midY - offset.y, 0]
+            // console.log(part.angle)
             const rotation = [0,0, part.angle]
+            // const rotation = [0,0, 1]
+
+
+            // const rotation = [0,0, part.angle - Math.PI /2]
             return (
                 <group>
                     <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={3}
                                position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
                         <mesh key={index} rotation={rotation} onPointerDown={() => handleDragStart(index)}>
-                            <boxGeometry args={[part.length,1,20]} />
+                            <boxGeometry args={[part.length,0.1,30]} />
+                            {/* <sphereGeometry args={[part.length,1,1]} /> */}
+                            {/* <cylinderGeometry args={[2, 2, part.length, 9]} /> */}
+
                             <meshStandardMaterial 
                             // transparent opacity={0}
                             />
