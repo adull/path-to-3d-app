@@ -96,11 +96,14 @@ const Threedy = ({ svgData }) => {
                 setBoxPos(targetPos)
                 
                 const maxDim = Math.max(xDiff, yDiff)
+                console.log({ maxDim })
                 const fov = cam.fov * (-Math.PI / -180)
                 const cameraZ = (Math.abs( maxDim / 4 * Math.tan(fov * 2))) * offset
+                console.log({ cameraZ })
                 
 
-                cam.position.set(targetPos.x, targetPos.y + 200, cameraZ);
+                cam.position.set(targetPos.x, 25, cameraZ);
+                console.log(maxVals.maxY)
                 cam.updateProjectionMatrix();
 
                 // update grid
@@ -113,14 +116,14 @@ const Threedy = ({ svgData }) => {
     }
 
     return (
-        <div class="w-full">
-            <Canvas>
+        <div class="w-full h-full">
+            <Canvas class="h-full">
                 <PerspectiveCamera makeDefault ref={camRef}/>
                 <ambientLight intensity={0.4} />
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} focusPath={focusPath} />
+                    <ChainCylinders parts={parts} enableDrag={!orbitControlsEnabled} focusPath={focusPath} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
                 <gridHelper

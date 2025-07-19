@@ -67,7 +67,7 @@ const propertiesToParts = ({ properties, interval }) => {
     
     for(let i = 0; i < allLengths.length -1; i ++) {
       const p1 = properties.getPointAtLength(allLengths[i])
-      const p2 = properties.getPointAtLength(allLengths[i])
+      const p2 = properties.getPointAtLength(allLengths[i + 1])
 
 
       // svg vs 3d space
@@ -89,27 +89,11 @@ const propertiesToParts = ({ properties, interval }) => {
     return parts
 }
 
-const getMaxVals = (curve) => {
-    let [minX, minY] = [Infinity, Infinity]
-    let [maxX, maxY] = [-Infinity, -Infinity]
-    let [x, y] = [0,0]
-    curve.points.forEach(point => {
-        // console.log({ point })
-        x = point.x
-        y = point.y
 
-        if(x < minX) { minX = x } 
-        if(x > maxX) { maxX = x }
-        if(y < minY) { minY = y }
-        if(y > maxY) { maxY = y }
-    })
-    
-    
-
-    return {minX , maxX, minY, maxY}
+const dumbPropToPart = ({ properties }) => {
 }
 
-const alt = (pts) => {
+const getMaxVals = (pts) => {
   let [minX, minY] = [Infinity, Infinity]
   let [maxX, maxY] = [-Infinity, -Infinity]
   let [x, y] = [0,0]
@@ -127,4 +111,4 @@ const alt = (pts) => {
   return {minX , maxX, minY, maxY}
 }
 
-export { extractPathData, propertiesToParts, getMaxVals, alt }
+export { extractPathData, propertiesToParts, dumbPropToPart, getMaxVals }

@@ -1,24 +1,24 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react'
-import { getMaxVals, alt } from '../helpers/index'
+import { getMaxVals } from '../helpers/index'
 import { shaderMaterial } from '@react-three/drei'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import * as THREE from 'three'
-import { extend } from '@react-three/fiber'
+import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-const ChainCylinders = ({ parts, focusPath }) => {
+const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
+    //setting up hooks
     const[points,setPoints] = useState([])
+    const [draggingIndex, setDraggingIndex] = useState(-1)
 
     const tubeRef = useRef(null)
+    
     const bodyRefs = useRef([])
-
-    const ToonMaterial = shaderMaterial(
-        toonShader.uniforms,
-        toonShader.vertexShader,
-        toonShader.fragmentShader
-    )
-    extend({ ToonMaterial })
+    
+    const raycaster = useRef(new THREE.Raycaster())
+    const mouse = useRef(new THREE.Vector2())
+    const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0,0,1), 0), [])
 
     if(bodyRefs.current.length !== parts.length) {
         bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
@@ -30,66 +30,118 @@ const ChainCylinders = ({ parts, focusPath }) => {
         }))
     }
 
+    // useeffect zone
     useEffect(() => {
-        console.log({ parts})
-
-        // console.log({ parts })
         const _pts = bodyRefs.current.map(ref => {
-            // ref.current?.lockTranslations()
-            // ref.current?.lockRotations()
-
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         })
         
 
-        const maxVals = alt(_pts)
-        console.log({maxVals})
-        console.log({ _pts })
+        const maxVals = getMaxVals(_pts)
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
 
         const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
 
-        console.log({ newPts })
-
         setPoints(newPts)
         focusPath(maxVals)
 
-        // const maxVals = getMaxVals()
-        // cb(maxVals, tubeRef)
-        
-        // console.log({ points })
-
-        
 
     }, [parts])
 
-    const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-    console.log({ curve})
+    useEffect(() => {
+        const handlePointerUp = () => setDraggingIndex(-1)
+        window.addEventListener('pointerup', handlePointerUp)
+        return () => window.removeEventListener('pointerup', handlePointerUp)
 
-    // console.log(curve)
-    // const maxVals = getMaxVals(curve)
-    // cb(maxVals, tubeRef)
-    // console.log(`rener?`)
+    }, [])
+
+    // this costs a billion dollars
+    useFrame(({ camera, mouse: mousePos}) => {
+        // setPoints(bodyRefs.current.map(ref => {
+        //     const pos = ref.current?.translation()
+        //     return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
+        // }))
+
+        const _pts = bodyRefs.current.map(ref => {
+            const pos = ref.current?.translation()
+            return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
+        })
+        
+
+        const maxVals = getMaxVals(_pts)
+        const avgX = (maxVals?.maxX + maxVals?.minX) / 2
+        const avgY = (maxVals?.maxY + maxVals?.minY) / 2
+
+        const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
+
+        // setPoints(newPts)
+        setPoints(_pts)
+
+        // focusPath(maxVals)
+
+        if(draggingIndex === -1) return
+
+        const body = bodyRefs.current[draggingIndex]
+        // console.log({ body })
+
+        if(!body) return
+
+        raycaster.current.setFromCamera(mousePos, camera)
+        const target = new THREE.Vector3(0,0,0)
+
+        raycaster.current.ray.intersectPlane(plane, target)
+
+        // console.log({ body })
+        const current = body.current?.translation()
+        const force = new THREE.Vector3().subVectors(target, current).multiplyScalar(20)
+
+        console.log({ current, force })
+
+        body.current?.applyImpulse(force, true)
+    })
+
+    const handleDragStart = (index) => {
+        console.log(`drag start`)
+        if(bodyRefs.current[index]) setDraggingIndex(index)
+    }
+
+
+    // last minute rendering stuff
+    const ToonMaterial = shaderMaterial(
+        toonShader.uniforms,
+        toonShader.vertexShader,
+        toonShader.fragmentShader
+    )
+    extend({ ToonMaterial })
+
+    const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
+    // console.log({ parts})
+    // console.log({ points })
 
     return (
         <>
         {parts.map((part, index) => {
+            const point = points[index]
+            
             const midX = (part.start.x + part.end.x) / 2
             const midY = (part.start.y + part.end.y) / 2
+
+            // console.log({ point, lol: {midX, midY}})
+            
 
             const position = [ midX, midY, 0]
 
             const rotation = [0,0, part.angle]
             return (
                 <>
-                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={0} angularDamping={0}
+                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={50} angularDamping={50}
                                position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
-                        <mesh key={index} rotation={rotation}>
-                            <boxGeometry args={[part.length,1,1]} />
+                        <mesh key={index} rotation={rotation} onPointerDown={() => handleDragStart(index)}>
+                            <boxGeometry args={[part.length,5,1]} />
                             <meshStandardMaterial 
-                            transparent opacity={0} 
+                            transparent opacity={0}
                             />
                         </mesh>
                     </RigidBody>
