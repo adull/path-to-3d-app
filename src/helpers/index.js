@@ -91,6 +91,72 @@ const propertiesToParts = ({ properties, interval }) => {
 
 
 const dumbPropToPart = ({ properties }) => {
+  const _parts = properties.getParts()
+    const ipl = properties.inst.partial_lengths
+    _parts.push(ipl[ipl.length])
+
+    // const interval = 150
+    // const numSamples = Math.ceil(properties.getTotalLength() / interval)
+
+    // let prevAngle = null
+    // let tolerance = Math.PI / 180 * 5 
+    // const controlPoints = []
+
+    // for (let i = 0; i <= numSamples; i++) {
+    //     const len = i * interval
+    //     const tangent = properties.getTangentAtLength(len)
+    //     const angle = Math.atan2(tangent.y, tangent.x)
+
+    //     if (prevAngle !== null) {
+    //         const delta = Math.abs(angle - prevAngle)
+    //         if (delta > tolerance) {
+    //         controlPoints.push(len)
+    //         }
+    //     }
+
+    //     prevAngle = angle
+    // }
+
+    const additionalPoints = []
+
+    // controlPoints.forEach(len => {
+    //   for (let offset = -5; offset <= 5; offset++) {
+    //     const adjustedLen = len + offset * 0.1
+    //     if (adjustedLen >= 0 && adjustedLen <= properties.getTotalLength()) {
+    //       additionalPoints.push(adjustedLen)
+    //     }
+    //   }
+    // })
+
+    const allLengths = [...properties.inst.partial_lengths, ...additionalPoints]
+    .filter(v => !isNaN(v))
+    .sort((a, b) => a - b)
+
+    const parts = []
+
+    
+    for(let i = 0; i < allLengths.length -1; i ++) {
+      const p1 = properties.getPointAtLength(allLengths[i])
+      const p2 = properties.getPointAtLength(allLengths[i + 1])
+
+
+      // svg vs 3d space
+      p1.y *= -1
+      p2.y *= -1
+
+      const dx = p2.x - p1.x
+      const dy = p2.y - p1.y
+      const length = Math.sqrt(dx * dx + dy * dy)
+      const angle = Math.atan2(dy, dx)
+
+      parts.push({
+        start: p1,
+        end: p2,
+        length,
+        angle,
+      })
+    }
+    return parts
 }
 
 const getMaxVals = (pts) => {

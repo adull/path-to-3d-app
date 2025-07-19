@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, forwardRef } from 'react'
-import { extractPathData, propertiesToParts } from '../helpers/index'
+import { extractPathData, propertiesToParts, dumbPropToPart } from '../helpers/index'
 import { svgPathProperties } from 'svg-path-properties'
 
 import { Canvas } from '@react-three/fiber'
@@ -45,7 +45,8 @@ const Threedy = ({ svgData }) => {
         
         // propertiesToParts returns an array. 
         // Changing the value of interval increases the resolution but can result in choppiness in framerate for 3js
-        const _parts = propertiesToParts({ properties, interval: 150})
+        // const _parts = propertiesToParts({ properties, interval: 1})
+        const _parts = dumbPropToPart({ properties })
         setParts(_parts)
 
         focusPath()
@@ -123,7 +124,7 @@ const Threedy = ({ svgData }) => {
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} enableDrag={!orbitControlsEnabled} focusPath={focusPath} />
+                    <ChainCylinders parts={parts} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
                 <gridHelper

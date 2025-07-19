@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
+const ChainCylinders = ({ parts, setOrbitControls, focusPath }) => {
     //setting up hooks
     const[points,setPoints] = useState([])
     const [draggingIndex, setDraggingIndex] = useState(-1)
@@ -51,7 +51,7 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
     }, [parts])
 
     useEffect(() => {
-        const handlePointerUp = () => setDraggingIndex(-1)
+        const handlePointerUp = () => { setOrbitControls(true); setDraggingIndex(-1); }
         window.addEventListener('pointerup', handlePointerUp)
         return () => window.removeEventListener('pointerup', handlePointerUp)
 
@@ -76,8 +76,8 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
 
         const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
 
-        // setPoints(newPts)
-        setPoints(_pts)
+        setPoints(newPts)
+        // setPoints(_pts)
 
         // focusPath(maxVals)
 
@@ -87,6 +87,8 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
         // console.log({ body })
 
         if(!body) return
+
+        console.log({ mousePos})
 
         raycaster.current.setFromCamera(mousePos, camera)
         const target = new THREE.Vector3(0,0,0)
@@ -104,6 +106,7 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
 
     const handleDragStart = (index) => {
         console.log(`drag start`)
+        setOrbitControls(false)
         if(bodyRefs.current[index]) setDraggingIndex(index)
     }
 
@@ -123,10 +126,12 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
     return (
         <>
         {parts.map((part, index) => {
-            const point = points[index]
+            // const point = points[index]
             
             const midX = (part.start.x + part.end.x) / 2
             const midY = (part.start.y + part.end.y) / 2
+            // const midX = point ? point?.x : 0
+            // const midY = point ? point?.y : 0
 
             // console.log({ point, lol: {midX, midY}})
             
@@ -135,13 +140,13 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
 
             const rotation = [0,0, part.angle]
             return (
-                <>
-                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={50} angularDamping={50}
+                <group>
+                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={3}
                                position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
                         <mesh key={index} rotation={rotation} onPointerDown={() => handleDragStart(index)}>
-                            <boxGeometry args={[part.length,5,1]} />
+                            <boxGeometry args={[part.length,1,20]} />
                             <meshStandardMaterial 
-                            transparent opacity={0}
+                            // transparent opacity={0}
                             />
                         </mesh>
                     </RigidBody>
@@ -150,12 +155,12 @@ const ChainCylinders = ({ parts, enableDrag, focusPath }) => {
                             key={`joint-${index}`}
                             length={part.length}
                             bodyA={bodyRefs.current[index]}
-                            bodyB={bodyRefs.current[index + 1]}
+                            bodyB={bodyRefs.current[index - 1]}
                         />
                         :
                         <></>
                     }
-                </>
+                </group>
             )
         })}
         {curve && points.length > 0 && (
