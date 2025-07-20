@@ -15,7 +15,7 @@ import ChainCylinders from './ChainCylinders'
 import * as THREE from 'three'
 
 
-const Threedy = ({ svgData }) => {
+const Threedy = ({ svgData, updatePoints }) => {
     const [parts, setParts] = useState([])
     
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
@@ -124,7 +124,7 @@ const Threedy = ({ svgData }) => {
                 <directionalLight color="red" position={[0, 0, 5]} />
                 <directionalLight color="red" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} />
+                    <ChainCylinders parts={parts} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} updatePoints={updatePoints} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
                 <gridHelper

@@ -1,10 +1,12 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { paper } from 'paper'
 
-const Draw = ({ setSvgData }) => {
+const Draw = ({ setSvgData, threedyPoints }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
+
+    const memoizedThreedyPoints = useMemo(() => threedyPoints, [JSON.stringify(threedyPoints)]);
 
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
@@ -37,6 +39,58 @@ const Draw = ({ setSvgData }) => {
             updateSvg()
         }
     }, [display])
+
+    useEffect(() => {
+        if (!paper || !paper.view) return;
+
+        // Remove old path if it exists
+        const existing = paper.project.getItem({ name: 'bruh' });
+        if (existing) existing.remove();
+      
+        if (memoizedThreedyPoints.length === 0) return;
+      
+        const viewBounds = paper.view.bounds;
+        const padding = 20;
+      
+        // 1. Get bounding box of points
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
+      
+        memoizedThreedyPoints.forEach(({ x, y }) => {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        });
+      
+        const dataWidth = maxX - minX;
+        const dataHeight = maxY - minY;
+      
+        const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+        const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+        const scale = Math.min(scaleX, scaleY); // Maintain aspect ratio
+      
+        const offsetX = viewBounds.left + padding;
+        const offsetY = viewBounds.top + padding;
+      
+        // 2. Create new path with transformed points
+        const path = new paper.Path({
+          strokeColor: 'red',
+          strokeWidth: 2,
+          name: 'bruh'
+        });
+      
+        memoizedThreedyPoints.forEach(({ x, y }) => {
+          const normalizedX = (x - minX) * scale + offsetX;
+          const flippedY = maxY - y;
+          const normalizedY = ((flippedY - minY) * scale + offsetY);
+          path.add(new paper.Point(normalizedX, normalizedY));
+        });
+      
+        return () => {
+          path.remove();
+        };
+    }, [memoizedThreedyPoints])
 
     const erase = () => {
         console.log(`this is hooked up`)
