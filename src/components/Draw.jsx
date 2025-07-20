@@ -6,8 +6,6 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
 
-    const memoizedThreedyPoints = useMemo(() => threedyPoints, [JSON.stringify(threedyPoints)]);
-
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
         let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
@@ -22,7 +20,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     }, [])
     useEffect(() => {
         paper.setup("paper")
-        const path = new paper.Path({ strokeColor: 'black', strokeWidth: 2 })
+        const path = new paper.Path({ strokeColor: 'black', strokeWidth: 2, name: 'bruh' })
         
         const view = paper.view
 
@@ -40,23 +38,96 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         }
     }, [display])
 
-    useEffect(() => {
-        if (!paper || !paper.view) return;
-
-        // Remove old path if it exists
-        const existing = paper.project.getItem({ name: 'bruh' });
-        if (existing) existing.remove();
+    // useEffect(() => {
+    //     if (!paper || !paper.view || memoizedThreedyPoints.length === 0) return;
       
-        if (memoizedThreedyPoints.length === 0) return;
+    //     const viewBounds = paper.view.bounds;
+    //     const padding = 20;
+      
+    //     // 1. Remove nothing — keep all paths for now.
+      
+    //     // 2. Compute bounding box of points
+    //     let minX = Infinity, minY = Infinity;
+    //     let maxX = -Infinity, maxY = -Infinity;
+      
+    //     memoizedThreedyPoints.forEach(({ x, y }) => {
+    //       if (x < minX) minX = x;
+    //       if (y < minY) minY = y;
+    //       if (x > maxX) maxX = x;
+    //       if (y > maxY) maxY = y;
+    //     });
+      
+    //     const dataWidth = maxX - minX;
+    //     const dataHeight = maxY - minY;
+      
+    //     const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+    //     const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+    //     const scale = Math.min(scaleX, scaleY);
+      
+    //     const offsetX = viewBounds.left + padding;
+    //     const offsetY = viewBounds.top + padding;
+      
+    //     // 3. Create new path with flipped + scaled points
+    //     const path = new paper.Path({
+    //       strokeColor: new paper.Color(1, 0, 0),
+    //       strokeWidth: 2,
+    //       name: 'bruh',
+    //       data: {
+    //         createdAt: performance.now()
+    //       }
+    //     });
+      
+    //     memoizedThreedyPoints.forEach(({ x, y }) => {
+    //       const normalizedX = (x - minX) * scale + offsetX;
+    //       const flippedY = maxY - y;
+    //       const normalizedY = (flippedY - minY) * scale + offsetY;
+    //       path.add(new paper.Point(normalizedX, normalizedY));
+    //     });
+      
+    //     // 4. Animate color + remove old paths
+    //     paper.view.onFrame = (event) => {
+    //       const now = performance.now();
+      
+    //       paper.project.getItems({ name: 'bruh' }).forEach((item) => {
+    //         const age = now - item.data.createdAt;
+      
+    //         // Animate color
+    //         const hue = ((item.data.createdAt / 1000 + event.time) * 30) % 360;
+    //         item.strokeColor = new paper.Color({
+    //           hue,
+    //           saturation: 1,
+    //           brightness: 1
+    //         });
+      
+    //         // Remove after 12s
+    //         if (age > 12000) {
+    //           item.remove();
+    //         }
+    //       });
+    //     };
+      
+    //     return () => {
+    //       // don’t remove paths here — let them live 12s
+    //       // we could optionally clean up on unmount
+    //     };
+    //   }, [memoizedThreedyPoints]);
+    useEffect(() => {
+        if (!paper || !paper.view || threedyPoints.length === 0) return;
+
+        paper.project.getItems({ name: 'bruh' }).forEach((item) => {
+            item.remove()
+        })
       
         const viewBounds = paper.view.bounds;
         const padding = 20;
       
-        // 1. Get bounding box of points
+        // 1. Remove nothing — keep all paths for now.
+      
+        // 2. Compute bounding box of points
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
       
-        memoizedThreedyPoints.forEach(({ x, y }) => {
+        threedyPoints.forEach(({ x, y }) => {
           if (x < minX) minX = x;
           if (y < minY) minY = y;
           if (x > maxX) maxX = x;
@@ -68,29 +139,38 @@ const Draw = ({ setSvgData, threedyPoints }) => {
       
         const scaleX = (viewBounds.width - padding * 2) / dataWidth;
         const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-        const scale = Math.min(scaleX, scaleY); // Maintain aspect ratio
+        const scale = Math.min(scaleX, scaleY);
       
         const offsetX = viewBounds.left + padding;
         const offsetY = viewBounds.top + padding;
       
-        // 2. Create new path with transformed points
+        // 3. Create new path with flipped + scaled points
         const path = new paper.Path({
-          strokeColor: 'red',
+          strokeColor: new paper.Color(0, 0, 0),
           strokeWidth: 2,
-          name: 'bruh'
+          name: 'bruh',
+          data: {
+            createdAt: performance.now()
+          }
         });
       
-        memoizedThreedyPoints.forEach(({ x, y }) => {
+        threedyPoints.forEach(({ x, y }) => {
           const normalizedX = (x - minX) * scale + offsetX;
           const flippedY = maxY - y;
-          const normalizedY = ((flippedY - minY) * scale + offsetY);
+          const normalizedY = (flippedY - minY) * scale + offsetY;
           path.add(new paper.Point(normalizedX, normalizedY));
         });
       
+        // 4. Animate color + remove old paths
+        
+      
         return () => {
-          path.remove();
+          // don’t remove paths here — let them live 12s
+          // we could optionally clean up on unmount
+          path.remove()
         };
-    }, [memoizedThreedyPoints])
+      }, [threedyPoints]);
+
 
     const erase = () => {
         console.log(`this is hooked up`)

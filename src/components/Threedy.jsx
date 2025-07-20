@@ -28,6 +28,7 @@ const Threedy = ({ svgData, updatePoints }) => {
     const controlsRef = useRef(null)
 
     const Controls = forwardRef((props, ref) => {
+        console.log(`brah wtf`)
         return <OrbitControls ref={ref} autoRotateSpeed={0.2} autoRotate makeDefault {...props} />
       })
 

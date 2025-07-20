@@ -14,7 +14,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     const [offset, setOffset] = useState({x: 0, y: 0})
 
     const tubeRef = useRef(null)
-    
+    const pointsRef = useRef(null)
     const bodyRefs = useRef([])
     
     const raycaster = useRef(new THREE.Raycaster())
@@ -31,6 +31,11 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
         }))
     }
 
+    useEffect(() => {
+        
+        pointsRef.current = points
+
+    }, [points])
     // useeffect zone
     useEffect(() => {
         const _pts = bodyRefs.current.map(ref => {
@@ -53,11 +58,12 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     }, [parts])
 
     useEffect(() => {
-        const handlePointerUp = () => { setOrbitControls(true); setDraggingIndex(-1); }
+        console.log(`umm`)
+        const handlePointerUp = () => { setOrbitControls(true); setDraggingIndex(-1); setTimeout(() => updatePoints(pointsRef.current), 550 )}
         window.addEventListener('pointerup', handlePointerUp)
         return () => window.removeEventListener('pointerup', handlePointerUp)
-
     }, [])
+
 
     // this costs a billion dollars
     useFrame(({ camera, mouse: mousePos}) => {
@@ -104,9 +110,12 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
         // console.log({ current, force })
 
         body.current?.applyImpulse(force, true)
+        updatePoints(newPts)
+
     })
 
     const dragClosestRigidBody = (e) => {
+        console.log(`on`)
         setOrbitControls(false);
       
         const virtualPoint = e.point;
@@ -139,7 +148,8 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     extend({ ToonMaterial })
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-    updatePoints(points)
+    // updatePoints(points)
+    // console.log(points)
 
     return (
         <>
