@@ -9,6 +9,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
         let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
+        // let height = 700
         // if(height > width) height = window.innerHeight / 2
         
         // console.log({ width, height })
@@ -119,11 +120,9 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         })
       
         const viewBounds = paper.view.bounds;
+        console.log({ viewBounds })
         const padding = 20;
-      
-        // 1. Remove nothing — keep all paths for now.
-      
-        // 2. Compute bounding box of points
+    
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
       
@@ -133,6 +132,8 @@ const Draw = ({ setSvgData, threedyPoints }) => {
           if (x > maxX) maxX = x;
           if (y > maxY) maxY = y;
         });
+
+        console.log({ maxX, maxY })
       
         const dataWidth = maxX - minX;
         const dataHeight = maxY - minY;
@@ -144,7 +145,6 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         const offsetX = viewBounds.left + padding;
         const offsetY = viewBounds.top + padding;
       
-        // 3. Create new path with flipped + scaled points
         const path = new paper.Path({
           strokeColor: new paper.Color(0, 0, 0),
           strokeWidth: 2,
@@ -199,7 +199,6 @@ const Draw = ({ setSvgData, threedyPoints }) => {
                 }}
             >                
             </canvas>
-            <button onClick={erase}>erase</button>
         </div>
 
     );
