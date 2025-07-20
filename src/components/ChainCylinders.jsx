@@ -18,7 +18,6 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     const bodyRefs = useRef([])
     
     const raycaster = useRef(new THREE.Raycaster())
-    const mouse = useRef(new THREE.Vector2())
     const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0,0,1), 0), [])
 
     if(bodyRefs.current.length !== parts.length) {
