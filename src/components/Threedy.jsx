@@ -28,14 +28,16 @@ const Threedy = ({ svgData, updatePoints }) => {
     const controlsRef = useRef(null)
 
     const Controls = forwardRef((props, ref) => {
-        console.log(`brah wtf`)
         return <OrbitControls ref={ref} autoRotateSpeed={0.2} autoRotate makeDefault {...props} />
       })
 
 
-    // useFrame(() => {
-        
-    // })
+    useEffect(() => {
+        if(camRef.current) {
+            console.log(camRef.current)
+            console.log(`fuck you`)
+        }
+    }, [])
 
     useEffect(() => {
         // setOrbitControlsEnabled(false)
