@@ -99,11 +99,9 @@ const Threedy = ({ svgData, updatePoints }) => {
                 
 
                 cam.position.set(targetPos.x, 25, cameraZ);
-                console.log(maxVals.maxY)
                 cam.updateProjectionMatrix();
 
                 // update grid
-                console.log(gridRef.current)
                 gridRef.current.position.y = maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20
             }
         }
