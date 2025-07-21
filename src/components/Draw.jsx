@@ -81,7 +81,6 @@ const Draw = ({ setSvgData, threedyPoints }) => {
           }
         });
       
-        const points = []
         threedyPoints.forEach(({ x, y }) => {
           const normalizedX = (x - minX) * scale + offsetX;
           const flippedY = maxY - y;

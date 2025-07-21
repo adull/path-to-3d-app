@@ -14,9 +14,7 @@ const Body = () => {
         <div className="border b-1 border-l-1 md:border-l-0 border-t-0 md:border-t-1 border-black h-[50%] md:h-[100%] w-full md:w-1/2">
             <Threedy svgData={svgData} updatePoints={setThreedyPoints}/>
         </div>
-        
     </div>
-
     );
 }
 

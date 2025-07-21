@@ -29,6 +29,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         }))
     }
+    // console.log(parts)
 
     useEffect(() => {
         
@@ -57,7 +58,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     }, [parts])
 
     useEffect(() => {
-        console.log(`umm`)
+        // console.log(`umm`)
         const handlePointerUp = () => { setOrbitControls(true); setDraggingIndex(-1); setTimeout(() => updatePoints(pointsRef.current), 550 )}
         window.addEventListener('pointerup', handlePointerUp)
         return () => window.removeEventListener('pointerup', handlePointerUp)
@@ -84,32 +85,25 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
         const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
 
         setPoints(newPts)
-        // setPoints(_pts)
-
-        // focusPath(maxVals)
 
         if(draggingIndex === -1) return
+        // console.log({ draggingIndex })
 
         const body = bodyRefs.current[draggingIndex]
         // console.log({ body })
 
         if(!body) return
 
-        // console.log({ mousePos})
-
         raycaster.current.setFromCamera(mousePos, camera)
         const target = new THREE.Vector3(0,0,0)
 
         raycaster.current.ray.intersectPlane(plane, target)
 
-        // console.log({ body })
         const current = body.current?.translation()
         const force = new THREE.Vector3().subVectors(target, current).multiplyScalar(20)
 
-        // console.log({ current, force })
-
         body.current?.applyImpulse(force, true)
-        updatePoints(newPts)
+        // updatePoints(newPts)
 
     })
 
@@ -118,15 +112,22 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
         setOrbitControls(false);
       
         const virtualPoint = e.point;
+        console.log({ virtualPoint })
         let closestIndex = -1;
         let minDistance = Infinity;
+
+        // console.log({ parts })
+        // console.log({ points })
       
         points.forEach((point, index) => {
+        //   const point = { x: (part.start.x + part.end.x) / 2, y: (part.start.y + part.end.y) / 2}
           const dx = point.x - virtualPoint.x;
           const dy = point.y - virtualPoint.y;
           const dz = point.z - virtualPoint.z;
       
           const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        // const distance = Math.sqrt(dx * dx + dy * dy);
+
       
           if (distance < minDistance) {
             minDistance = distance;
@@ -147,16 +148,21 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
     extend({ ToonMaterial })
 
     const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
+    // console.log(parts)
     // updatePoints(points)
-    // console.log(points)
 
     return (
         <>
         {parts.map((part, index) => {
             const point = points[index]
+            console.log({ point })
             
             const midX = point?.x ? point.x : (part.start.x + part.end.x) / 2 - offset.x
             const midY = point?.y ? point.y : (part.start.y + part.end.y) / 2 - offset.y
+            const z = point?.z ? point.z : 0
+            // const midX = (part.start.x + part.end.x) / 2 - offset.x
+            // const midY = (part.start.y + part.end.y) / 2 - offset.y
+            
             // const midX = point ? point?.x : 0
             // const midY = point ? point?.y : 0
 
@@ -164,7 +170,8 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints }) =>
             
             // const position = [ midX, midY, 0]
 
-            const position = [ midX, midY, 0]
+            const position = [ midX, midY, z]
+            // console.log({ midX, midY})
             // console.log(part.angle)
             const rotation = [0,0, part.angle]
             // const rotation = [0,0, 1]

@@ -83,11 +83,7 @@ const Threedy = ({ svgData, updatePoints }) => {
     const focusPath = (maxVals) => {
         if(maxVals) {
             const offset = 1.25
-            // const boundingBox = new THREE.Box3().
-    
-            // const center = boundingBox.getCenter()
-            // const size = boundingBox.getSize()
-    
+
             const cam = camRef?.current
             if(cam) {
                 
@@ -98,10 +94,8 @@ const Threedy = ({ svgData, updatePoints }) => {
                 setBoxPos(targetPos)
                 
                 const maxDim = Math.max(xDiff, yDiff)
-                console.log({ maxDim })
                 const fov = cam.fov * (-Math.PI / -180)
                 const cameraZ = (Math.abs( maxDim / 4 * Math.tan(fov * 2))) * offset
-                console.log({ cameraZ })
                 
 
                 cam.position.set(targetPos.x, 25, cameraZ);
@@ -121,9 +115,9 @@ const Threedy = ({ svgData, updatePoints }) => {
         <div class="w-full h-full">
             <Canvas class="h-full">
                 <PerspectiveCamera makeDefault ref={camRef}/>
-                <ambientLight intensity={0.4} />
-                <directionalLight color="red" position={[0, 0, 5]} />
-                <directionalLight color="red" position={[0, 5, 0]} />
+                {/* <ambientLight intensity={0.4} /> */}
+                <directionalLight color="white" position={[0, 0, 5]} />
+                <directionalLight color="white" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
                     <ChainCylinders parts={parts} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} updatePoints={updatePoints} />
                 </Physics>
