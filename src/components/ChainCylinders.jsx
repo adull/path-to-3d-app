@@ -3,25 +3,23 @@ import { getMaxVals } from '../helpers/index'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import Tube from "./Tube"
+import ChainLink from "./ChainLink"
+
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
 const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints }) => {
     //setting up hooks
-    const[points,setPoints] = useState([])
-    // const [draggingIndex, setDraggingIndex] = useState(-1)
     const [isDragging, setIsDragging] = useState(false)
     const [offset, setOffset] = useState({x: 0, y: 0})
 
     const bodyRefs = useRef([])
     const pointsRef = useRef([])
-
     const dampingRef = useRef(damping)
-    
     const draggingIndexRef = useRef(-1)
-    
     const raycaster = useRef(new THREE.Raycaster())
+
     const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0,0,1), 0), [])
 
     if(bodyRefs.current.length !== parts.length) {
@@ -50,7 +48,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
     useEffect(() => {
         dampingRef.current = parseInt(damping)
-        console.log(damping)
     }, [damping])
 
     useEffect(() => {
@@ -129,31 +126,20 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     return (
         <>
         {parts.map((part, index) => {
-            const point = points[index]
             
-            const midX = point?.x ? point.x : (part.start.x + part.end.x) / 2 - offset.x
-            const midY = point?.y ? point.y : (part.start.y + part.end.y) / 2 - offset.y
+            const midX = (part.start.x + part.end.x) / 2 - offset.x
+            const midY = (part.start.y + part.end.y) / 2 - offset.y
             // const z = point?.z ? point.z : 0
             const z = 0
 
             const position = [ midX, midY, z]
+            console.log({ midX, midY, z})
             const rotation = [0,0, part.angle]
 
             return (
                 <group>
-                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={damping}
-                               position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
-                        <mesh key={index} rotation={rotation} >
-                            <boxGeometry args={[part.length,0.1,10]} />
-                            {/* <sphereGeometry args={[part.length,1,1]} /> */}
-                            {/* <cylinderGeometry args={[2, 2, part.length, 9]} /> */}
-
-                            <meshStandardMaterial 
-                            // color={draggingIndexRef.current === index ? 'red' : 'black'}
-                            transparent opacity={0}
-                            />
-                        </mesh>
-                    </RigidBody>
+                    <ChainLink key={index} ref={(el) => bodyRefs.current[index] = el} rotation={rotation} linearDamping={damping} part={part}
+                               position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`} index={index}/>
                     {console.log({index, pl: parts.length})}
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
@@ -161,7 +147,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                             length={part.length}
                             bodyA={bodyRefs.current[index]}
                             bodyB={bodyRefs.current[index -1]}
-                            index={index}
                         />
                         :
                         <></>
