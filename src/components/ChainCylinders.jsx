@@ -15,7 +15,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     const [offset, setOffset] = useState({x: 0, y: 0})
 
     const bodyRefs = useRef([])
-    const pointsRef = useRef([])
+    // const pointsRef = useRef([])
     const dampingRef = useRef(damping)
     const draggingIndexRef = useRef(-1)
     const raycaster = useRef(new THREE.Raycaster())
@@ -37,9 +37,11 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         const maxVals = getMaxVals(_pts)
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
+        console.log({maxVals, avgX, avgY})
 
-        const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
-        pointsRef.current = newPts
+        // const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
+        // console.log({ newPts })
+        // pointsRef.current = newPts
 
         setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
         focusPath(maxVals)
@@ -138,9 +140,8 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
             return (
                 <group>
-                    <ChainLink key={index} ref={(el) => bodyRefs.current[index] = el} rotation={rotation} linearDamping={damping} part={part}
+                    <ChainLink key={index} ref={bodyRefs.current[index]} rotation={rotation} linearDamping={damping} part={part}
                                position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`} index={index}/>
-                    {console.log({index, pl: parts.length})}
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
                             key={`joint-${index}`}
