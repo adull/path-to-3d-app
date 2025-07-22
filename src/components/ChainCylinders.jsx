@@ -3,8 +3,6 @@ import { getMaxVals } from '../helpers/index'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import Tube from "./Tube"
-import ChainLink from "./ChainLink"
-
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
@@ -143,14 +141,27 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
             return (
                 <group>
-                    <ChainLink key={index} ref={bodyRefs.current[index]} linearDamping={damping} part={part}
-                               position={position} rotation={rotation} type="dynamic" colliders="cuboid" name={`chain_${index}`} />
+                    <RigidBody key={index} ref={bodyRefs.current[index]} linearDamping={damping}
+                               position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`}>
+                        <mesh key={index} rotation={rotation} >
+                            <boxGeometry args={[part.length,0.1,10]} />
+                            {/* <sphereGeometry args={[part.length,1,1]} /> */}
+                            {/* <cylinderGeometry args={[2, 2, part.length, 9]} /> */}
+
+                            <meshStandardMaterial 
+                            // color={draggingIndexRef.current === index ? 'red' : 'black'}
+                            transparent opacity={0}
+                            />
+                        </mesh>
+                    </RigidBody>
+                    {console.log({index, pl: parts.length})}
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
                             key={`joint-${index}`}
                             length={part.length}
                             bodyA={bodyRefs.current[index]}
                             bodyB={bodyRefs.current[index -1]}
+                            index={index}
                         />
                         :
                         <></>

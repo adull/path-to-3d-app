@@ -37,14 +37,12 @@ const Draw = ({ setSvgData, threedyPoints }) => {
                 const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
                 path.add(event.point)
             } else {
-                console.log(find)
                 const thepath = paper.project.getItems({ name: 'bruh' })[0]
                 thepath.add(event.point)
             }
         }
 
         view.onMouseUp = () => {
-            console.log(`brah`)
             updateSvg()
         }
     }, [display])

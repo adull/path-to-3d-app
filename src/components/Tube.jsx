@@ -5,7 +5,6 @@ import { shaderMaterial } from '@react-three/drei'
 import { toonShader } from '../helpers/shaders'
 
 export default function Tube({ onDrag, bodyRefs }) {
-    console.log({ bodyRefs })
   const meshRef = useRef()
 
   const ToonMaterial = shaderMaterial(
@@ -16,17 +15,17 @@ export default function Tube({ onDrag, bodyRefs }) {
   extend({ ToonMaterial })
 
   useFrame(() => {
-    // const currentPoints = getCurrentPoints(bodyRefs)
-    // if(currentPoints.length > 0) {
-    //     const curve = new THREE.CatmullRomCurve3(currentPoints)
-    //     const tubeGeom = new THREE.TubeGeometry(curve, 200, 4.1, 5, false)
-    //     // console.log(tubeGeom)
+    const currentPoints = getCurrentPoints(bodyRefs)
+    if(currentPoints.length > 0) {
+        const curve = new THREE.CatmullRomCurve3(currentPoints)
+        const tubeGeom = new THREE.TubeGeometry(curve, 200, 4.1, 5, false)
+        // console.log(tubeGeom)
 
-    //     if (meshRef.current) {
-    //         // console.log(`it is current`)
-    //         meshRef.current.geometry = tubeGeom
-    //     }
-    // } 
+        if (meshRef.current) {
+            // console.log(`it is current`)
+            meshRef.current.geometry = tubeGeom
+        }
+    } 
   })
 
 
