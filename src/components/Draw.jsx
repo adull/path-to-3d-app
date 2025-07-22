@@ -21,33 +21,51 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     }, [])
     useEffect(() => {
         paper.setup("paper")
-        const path = new paper.Path({ strokeColor: 'black', strokeWidth: 2, name: 'bruh' })
+        const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
         
         const view = paper.view
 
         const updateSvg = () => {
-            const svgData = path.exportSVG({ asString: true })
+            const thepath = paper.project.getItems({ name: 'bruh' })[0]
+            const svgData = thepath.exportSVG({ asString: true })
             setSvgData(svgData)
         }
 
         view.onMouseDrag = (event) => {
-            path.add(event.point)
+            const find = paper.project.getItems({ name: 'bruh' })
+            if(find.length === 0) {
+                const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
+                path.add(event.point)
+            } else {
+                console.log(find)
+                const thepath = paper.project.getItems({ name: 'bruh' })[0]
+                thepath.add(event.point)
+            }
         }
 
         view.onMouseUp = () => {
+            console.log(`brah`)
             updateSvg()
         }
     }, [display])
 
     useEffect(() => {
-        if (!paper || !paper.view || threedyPoints.length === 0) return;
+        if (!paper || !paper.view) return;
+
+        if(threedyPoints.length === 0) {
+            const find = paper.project.getItems({ name: 'bruh' })
+            if(find.length !== 0) {
+                find[0].remove()
+            } 
+            return
+        }
 
         paper.project.getItems({ name: 'bruh' }).forEach((item) => {
             item.remove()
         })
       
         const viewBounds = paper.view.bounds;
-        console.log({ viewBounds })
+        // console.log({ viewBounds })
         const padding = 20;
     
         let minX = Infinity, minY = Infinity;
@@ -60,7 +78,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
           if (y > maxY) maxY = y;
         });
 
-        console.log({ maxX, maxY })
+        // console.log({ maxX, maxY })
       
         const dataWidth = maxX - minX;
         const dataHeight = maxY - minY;
@@ -74,8 +92,9 @@ const Draw = ({ setSvgData, threedyPoints }) => {
       
         const path = new paper.Path({
           strokeColor: new paper.Color(0, 0, 0),
-          strokeWidth: 2,
+          strokeWidth: 8,
           name: 'bruh',
+          strokeCap: 'round',
           data: {
             createdAt: performance.now()
           }

@@ -19,6 +19,7 @@ const Threedy = ({ svgData, updatePoints }) => {
     const [parts, setParts] = useState([])
     
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
+    const [damping, setDamping] = useState(4)
     const [exportRef, setExportRef] = useState(null)
     const [boxPos, setBoxPos] = useState({ x: 0, y: 0, z: 0 })
 
@@ -28,14 +29,8 @@ const Threedy = ({ svgData, updatePoints }) => {
     const controlsRef = useRef(null)
 
     const Controls = forwardRef((props, ref) => {
-        console.log(`brah wtf`)
         return <OrbitControls ref={ref} autoRotateSpeed={0.2} autoRotate makeDefault {...props} />
       })
-
-
-    // useFrame(() => {
-        
-    // })
 
     useEffect(() => {
         // setOrbitControlsEnabled(false)
@@ -99,11 +94,9 @@ const Threedy = ({ svgData, updatePoints }) => {
                 
 
                 cam.position.set(targetPos.x, 25, cameraZ);
-                console.log(maxVals.maxY)
                 cam.updateProjectionMatrix();
 
                 // update grid
-                console.log(gridRef.current)
                 gridRef.current.position.y = maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20
             }
         }
@@ -119,7 +112,7 @@ const Threedy = ({ svgData, updatePoints }) => {
                 <directionalLight color="white" position={[0, 0, 5]} />
                 <directionalLight color="white" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} updatePoints={updatePoints} />
+                    <ChainCylinders parts={parts} damping={damping} setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} focusPath={focusPath} updatePoints={updatePoints} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
                 <gridHelper
@@ -129,11 +122,8 @@ const Threedy = ({ svgData, updatePoints }) => {
                     rotation={[0, -Math.PI / 2, 0]}
                     />
             </Canvas>
-            <div style={{position: `absolute`, top: 0, right: 0}}>
-            <label htmlFor={`controls`}>Controls:</label> 
-            <input id="controls" type={`checkbox`} checked={orbitControlsEnabled} onChange={() => setOrbitControlsEnabled(!orbitControlsEnabled)}/>
-            <button style={{backgroundColor: 'white', color: 'black'}} onClick={download}>Download</button>
-            </div>
+            <div>Stiffness</div>
+            <input value={damping} onChange={(e) => setDamping(e.target.value)} min={1} max={100} type="range"></input>
         </div>
     );
     }
