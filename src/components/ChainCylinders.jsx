@@ -128,7 +128,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     return (
         <>
         {parts.map((part, index) => {
-            
+            console.log({ offset })
             const midX = (part.start.x + part.end.x) / 2 - offset.x
             const midY = (part.start.y + part.end.y) / 2 - offset.y
             // const z = point?.z ? point.z : 0
@@ -137,29 +137,18 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
             const position = [ midX, midY, z]
             // console.log({ midX, midY, z})
             const rotation = [0,0, part.angle]
-
-            if(bodyRefs.current[index]) {
-                if(bodyRefs.current[index].current) {
-                    console.log(`--`)
-                    console.log(position)
-                    const pos = bodyRefs.current[index].current?.translation()
-                    
-                    console.log(`**`)
-                    console.log(pos)
-                }
-            }
-
+            
             return (
                 <group>
                     <RigidBody key={`rigidBody_${index}`} ref={bodyRefs.current[index]} linearDamping={damping}
                        position={position} type="dynamic" colliders="cuboid">
-                <mesh key={`mesh_${index}`} rotation={rotation} >
-                    <boxGeometry args={[part.length,0.1,10]} />
-                    <meshStandardMaterial 
-                    // transparent opacity={0}
-                    />
-                </mesh>
-            </RigidBody>
+                        <mesh key={`mesh_${index}`} rotation={rotation} >
+                            <boxGeometry args={[part.length,0.1,10]} />
+                            <meshStandardMaterial 
+                            transparent opacity={0}
+                            />
+                        </mesh>
+                    </RigidBody>
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
                             key={`joint-${index}`}

@@ -17,7 +17,7 @@ export default function Tube({ onDrag, bodyRefs }) {
 
   useFrame(() => {
     const currentPoints = getCurrentPoints(bodyRefs)
-    console.log({ currentPoints})
+    // console.log({ currentPoints})
     if(currentPoints.length > 0) {
         const curve = new THREE.CatmullRomCurve3(currentPoints)
         const tubeGeom = new THREE.TubeGeometry(curve, 200, 4.1, 5, false)
@@ -37,7 +37,7 @@ export default function Tube({ onDrag, bodyRefs }) {
         <mesh ref={meshRef} onPointerDown={(e) => onDrag(e)}>
           <bufferGeometry attach="geometry" />
           <toonMaterial
-            uColor={new THREE.Color('black')}
+            uColor={new THREE.Color('white')}
             uLight={new THREE.Vector3(5, 5, 5)}
             />
         </mesh>
