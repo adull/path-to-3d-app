@@ -105,8 +105,8 @@ const Threedy = ({ svgData, updatePoints }) => {
     }
 
     return (
-        <div class="w-full h-full">
-            <Canvas class="h-full">
+        <div className="w-full h-full">
+            <Canvas className="h-full">
                 <PerspectiveCamera makeDefault ref={camRef}/>
                 {/* <ambientLight intensity={0.4} /> */}
                 <directionalLight color="white" position={[0, 0, 5]} />

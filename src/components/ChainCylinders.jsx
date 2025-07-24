@@ -37,7 +37,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         const maxVals = getMaxVals(_pts)
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
-        console.log({maxVals, avgX, avgY})
+        // console.log({maxVals, avgX, avgY})
 
         // const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
         // console.log({ newPts })
@@ -135,13 +135,31 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
             const z = 0
 
             const position = [ midX, midY, z]
-            console.log({ midX, midY, z})
+            // console.log({ midX, midY, z})
             const rotation = [0,0, part.angle]
+
+            if(bodyRefs.current[index]) {
+                if(bodyRefs.current[index].current) {
+                    console.log(`--`)
+                    console.log(position)
+                    const pos = bodyRefs.current[index].current?.translation()
+                    
+                    console.log(`**`)
+                    console.log(pos)
+                }
+            }
 
             return (
                 <group>
-                    <ChainLink key={index} ref={bodyRefs.current[index]} rotation={rotation} linearDamping={damping} part={part}
-                               position={position} type="dynamic" colliders="cuboid" name={`chain_${index}`} index={index}/>
+                    <RigidBody key={`rigidBody_${index}`} ref={bodyRefs.current[index]} linearDamping={damping}
+                       position={position} type="dynamic" colliders="cuboid">
+                <mesh key={`mesh_${index}`} rotation={rotation} >
+                    <boxGeometry args={[part.length,0.1,10]} />
+                    <meshStandardMaterial 
+                    // transparent opacity={0}
+                    />
+                </mesh>
+            </RigidBody>
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
                             key={`joint-${index}`}

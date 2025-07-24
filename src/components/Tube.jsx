@@ -5,11 +5,7 @@ import { shaderMaterial } from '@react-three/drei'
 import { toonShader } from '../helpers/shaders'
 
 export default function Tube({ onDrag, bodyRefs }) {
-  // console.log({ bodyRefs})
-  const pts = getCurrentPoints(bodyRefs)
-  // console.log({ pts })
   const meshRef = useRef()
-  const bodyRefsRef = useRef(null)
 
   const ToonMaterial = shaderMaterial(
     toonShader.uniforms,
@@ -19,21 +15,17 @@ export default function Tube({ onDrag, bodyRefs }) {
   // console.log({ToonMaterial})
   extend({ ToonMaterial })
 
-  useEffect(() => {
-    bodyRefsRef.current = bodyRefs
-  }, [bodyRefs])
-
   useFrame(() => {
-    // const currentPoints = getCurrentPoints(bodyRefs)
-    // console.log({ currentPoints})
-    // if(currentPoints.length > 0) {
-    //     const curve = new THREE.CatmullRomCurve3(currentPoints)
-    //     const tubeGeom = new THREE.TubeGeometry(curve, 200, 4.1, 5, false)
+    const currentPoints = getCurrentPoints(bodyRefs)
+    console.log({ currentPoints})
+    if(currentPoints.length > 0) {
+        const curve = new THREE.CatmullRomCurve3(currentPoints)
+        const tubeGeom = new THREE.TubeGeometry(curve, 200, 4.1, 5, false)
 
-    //     if (meshRef.current) {
-    //         meshRef.current.geometry = tubeGeom
-    //     }
-    // } 
+        if (meshRef.current) {
+            meshRef.current.geometry = tubeGeom
+        }
+    } 
     
   })
 
@@ -45,7 +37,7 @@ export default function Tube({ onDrag, bodyRefs }) {
         <mesh ref={meshRef} onPointerDown={(e) => onDrag(e)}>
           <bufferGeometry attach="geometry" />
           <toonMaterial
-            uColor={new THREE.Color('white')}
+            uColor={new THREE.Color('black')}
             uLight={new THREE.Vector3(5, 5, 5)}
             />
         </mesh>
@@ -60,7 +52,6 @@ function getCurrentPoints(bodyRefs) {
     if(bodyRefs?.length > 0) {
         return bodyRefs.map(ref => {
             const pos = ref.current?.translation?.()
-            console.log({ pos })
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
           })
     } 
