@@ -3,23 +3,25 @@ import { getMaxVals } from '../helpers/index'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import Tube from "./Tube"
-import ChainLink from "./ChainLink"
-
 import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
 const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints }) => {
     //setting up hooks
+    const[points,setPoints] = useState([])
+    // const [draggingIndex, setDraggingIndex] = useState(-1)
     const [isDragging, setIsDragging] = useState(false)
     const [offset, setOffset] = useState({x: 0, y: 0})
 
     const bodyRefs = useRef([])
-    // const pointsRef = useRef([])
-    const dampingRef = useRef(damping)
-    const draggingIndexRef = useRef(-1)
-    const raycaster = useRef(new THREE.Raycaster())
+    const pointsRef = useRef([])
 
+    const dampingRef = useRef(damping)
+    
+    const draggingIndexRef = useRef(-1)
+    
+    const raycaster = useRef(new THREE.Raycaster())
     const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0,0,1), 0), [])
 
     if(bodyRefs.current.length !== parts.length) {
@@ -37,11 +39,9 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         const maxVals = getMaxVals(_pts)
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
-        // console.log({maxVals, avgX, avgY})
 
-        // const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
-        // console.log({ newPts })
-        // pointsRef.current = newPts
+        const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
+        pointsRef.current = newPts
 
         setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
         focusPath(maxVals)
@@ -50,6 +50,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
     useEffect(() => {
         dampingRef.current = parseInt(damping)
+        console.log(damping)
     }, [damping])
 
     useEffect(() => {
