@@ -13,6 +13,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     const [jointSize, setJointSize] = useState(0.1)
 
     const bodyRefs = useRef([])
+    const bodyType = useRef('fixed')
     const pointsRef = useRef([])
     const offsetRef = useRef({x: 0, y:0})
     const positionedParts = useRef([])
@@ -74,8 +75,10 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     // const offset = { x: 0, y: 0}
     // useeffect zone
     useEffect(() => {
+        bodyType.current = 'fixed'
         const {points, maxVals} = getPtsAndMaxVals()
-        focusPath(maxVals)        
+        focusPath(maxVals)
+        setTimeout(() => { bodyType.current = 'dynamic'}, 100)        
     }, [parts])
 
     // useEffect(() => {
@@ -187,8 +190,8 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
             
             return (
                 <group key={`rigidBody_${index}`}>
-                    <RigidBody ref={bodyRefs.current[index]} linearDamping={damping}
-                       position={position} type="dynamic" colliders={"cuboid"} sensor>
+                    <RigidBody ref={bodyRefs.current[index]} linearDamping={damping} canSleep
+                       position={position} type={bodyType.current} colliders={"cuboid"} sensor>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
                             <boxGeometry args={[partLength,0.3,10]} />
                             <meshStandardMaterial 

@@ -22,10 +22,6 @@ const Draw = ({ setSvgData }) => {
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
         let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
-        // let height = 700
-        // if(height > width) height = window.innerHeight / 2
-        
-        // console.log({ width, height })
         setDisplay({ width, height })
     }, [])
 
@@ -52,7 +48,6 @@ const Draw = ({ setSvgData }) => {
                 path.add(event.point)
             } else {
                 const thepath = paper.project.getItems({ name: 'bruh' })[0]
-                console.log({thepath})
                 thepath.add(event.point)
             }
         }
