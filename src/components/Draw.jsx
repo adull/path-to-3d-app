@@ -21,14 +21,16 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     }, [])
     useEffect(() => {
         paper.setup("paper")
-        const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
+        new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
         
         const view = paper.view
 
         const updateSvg = () => {
             const thepath = paper.project.getItems({ name: 'bruh' })[0]
             const svgData = thepath.exportSVG({ asString: true })
-            setSvgData(svgData)
+            if(thepath.segments.length > 3) {
+                setSvgData(svgData)
+            }
         }
 
         view.onMouseDrag = (event) => {

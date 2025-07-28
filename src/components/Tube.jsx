@@ -17,6 +17,7 @@ export default function Tube({ onDrag, bodyRefs }) {
 
   useFrame(() => {
     const currentPoints = getCurrentPoints(bodyRefs)
+    // console.log({ currentPoints })
     // console.log({ currentPoints})
     if(currentPoints.length > 0) {
         const curve = new THREE.CatmullRomCurve3(currentPoints)

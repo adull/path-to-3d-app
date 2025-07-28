@@ -9,13 +9,13 @@ import { toonShader } from '../helpers/shaders'
 
 const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints }) => {
     //setting up hooks
-    const[points,setPoints] = useState([])
-    // const [draggingIndex, setDraggingIndex] = useState(-1)
     const [isDragging, setIsDragging] = useState(false)
-    const [offset, setOffset] = useState({x: 0, y: 0})
+    // const [offset, setOffset] = useState({x: 0, y: 0})
+    const [triggerRerender, hack] = useState(0)
 
     const bodyRefs = useRef([])
     const pointsRef = useRef([])
+    const offsetRef = useRef({x: 0, y:0})
 
     const dampingRef = useRef(damping)
     
@@ -43,18 +43,25 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
         pointsRef.current = newPts
 
-        setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
+        console.log({ avgX, avgY })
+
+        // setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
+        offsetRef.current = {x: avgX ? avgX : 0, y: avgY ? avgY : 0}
         focusPath(maxVals)
 
     }, [parts])
 
+    // useEffect(() => {
+    //     console.log(triggerRerender)
+    //     hack(triggerRerender + 1)
+    // }, [triggerRerender])
+
     useEffect(() => {
         dampingRef.current = parseInt(damping)
-        console.log(damping)
     }, [damping])
 
     useEffect(() => {
-        const handlePointerUp = () => { 
+        const handlePointerUp =  () => { 
             setOrbitControls(true); 
             if(draggingIndexRef.current > 0) {
                 
@@ -67,7 +74,8 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                 }
                 const timeoutIndex = dampingRef.current < 4 ? dampingRef.current : 4
                 const timeoutLength = timeoutMap[timeoutIndex]
-                setTimeout(() => setIsDragging(false), timeoutLength)
+                //  setTimeout(() => setIsDragging(false), timeoutLength)
+                setIsDragging(false)
             }
         }
         window.addEventListener('pointerup', handlePointerUp)
@@ -125,13 +133,13 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
         draggingIndexRef.current = closestIndex
       };
-
+    //   console.log(`chain culinders rerender`)
     return (
         <>
         {parts.map((part, index) => {
-            console.log({ offset })
-            const midX = (part.start.x + part.end.x) / 2 - offset.x
-            const midY = (part.start.y + part.end.y) / 2 - offset.y
+            // console.log({ offset })
+            const midX = (part.start.x + part.end.x) / 2 - offsetRef.current.x
+            const midY = (part.start.y + part.end.y) / 2 - offsetRef.current.y
             // const z = point?.z ? point.z : 0
             const z = 0
 
@@ -146,7 +154,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                         <mesh key={`mesh_${index}`} rotation={rotation} >
                             <boxGeometry args={[part.length,0.1,10]} />
                             <meshStandardMaterial 
-                            transparent opacity={0}
+                            // transparent opacity={0}
                             />
                         </mesh>
                     </RigidBody>

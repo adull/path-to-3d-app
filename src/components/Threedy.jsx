@@ -5,8 +5,6 @@ import { svgPathProperties } from 'svg-path-properties'
 import { Canvas } from '@react-three/fiber'
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 
-import { useFrame } from "@react-three/fiber"
-
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 
 import { Physics } from '@react-three/rapier'
@@ -33,6 +31,19 @@ const Threedy = ({ svgData, updatePoints }) => {
       })
 
     useEffect(() => {
+        // console.log(`mount`)
+        // console.log(gridRef.current)
+    }, [])
+
+    useEffect(() => {
+        const cam = camRef.current;
+        if(gridRef.current && cam) {
+            gridRef.current.position.y = 0
+            cam.position.set(100, 25, -40);
+        }
+    }, [gridRef.current, camRef.current])
+
+    useEffect(() => {
         // setOrbitControlsEnabled(false)
         if(controlsRef?.current) controlsRef.current.enabled = false
         // console.log(`when does svgdata useeffect fire?`)
@@ -48,9 +59,6 @@ const Threedy = ({ svgData, updatePoints }) => {
         focusPath()
         if(controlsRef?.current) controlsRef.current.enabled = true
         // setOrbitControlsEnabled(true)
-
-
-        console.log(camRef.current)
         // setTimeout(() => {
         //     setOrbitControlsEnabled(true)
         //     console.log(`ye`)
@@ -76,6 +84,7 @@ const Threedy = ({ svgData, updatePoints }) => {
     // }
 
     const focusPath = (maxVals) => {
+        // console.log({ maxVals })
         if(maxVals) {
             const offset = 1.25
 
@@ -97,6 +106,8 @@ const Threedy = ({ svgData, updatePoints }) => {
                 cam.updateProjectionMatrix();
 
                 // update grid
+                // console.log(gridRef.current)
+                // console.log(maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20)
                 gridRef.current.position.y = maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20
             }
         }
