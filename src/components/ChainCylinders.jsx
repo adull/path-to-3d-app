@@ -8,7 +8,6 @@ import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
 const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints, setIsDragging, isDrawing }) => {
-    console.log({ parts, damping, setOrbitControls, focusPath, updatePoints, setIsDragging, isDrawing })
     //setting up hooks
     // const [isDragging, setIsDragging] = useState(false)
     const [jointSize, setJointSize] = useState(0.1)
@@ -56,7 +55,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
 
     const offset = useMemo(() => {
-        console.log({ parts})
         if (!parts.length) return { x: 0, y: 0 };
         const points = parts.map(part => {
             const pos = {x: (part.start.x + part.end.x) /2, y: (part.start.y + part.end.y) /2}
@@ -67,7 +65,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
 
-        console.log({ maxVals })
         return { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
 
         
@@ -125,12 +122,14 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     // this costs a billion dollars
     useFrame(({ camera, mouse: mousePos}) => {
         const body = bodyRefs.current[draggingIndexRef.current]
-        // console.log(body)
 
-        
-        // if(!isDragging) return
         const pts = bodyRefs.current.map((body) => {
             return body.current.translation()
+
+            // if(!body?.current?.translation()) {
+            //     return body.current.translation()
+            // }
+            // return { x: 0, y: 0, z: 0}
         })
         updatePoints(pts)
         if(!body) return
@@ -148,7 +147,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     })
 
     const dragClosestRigidBody = (e) => {
-        console.log(`this fire`)
         setOrbitControls(false);
         setIsDragging(true)
       

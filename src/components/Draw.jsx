@@ -5,12 +5,13 @@ import { getMaxVals } from '../helpers/index'
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
 import DraggingContext from '../context/DraggingContext'
 
-const Draw = ({ setSvgData, setIsDrawing }) => {
+const Draw = ({ setSvgData }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
     const threedyPoints = useContext(ThreedyPointsContext)
     const isDragging = useContext(DraggingContext)
+    const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
     const initScaleRef = useRef(0)
@@ -43,19 +44,22 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
         }
 
         view.onMouseDrag = (event) => {
-            setIsDrawing(true)
+            // setIsDrawing(true)
+            isDrawing.current = true
             const find = paper.project.getItems({ name: 'bruh' })
             if(find.length === 0) {
                 const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
                 path.add(event.point)
             } else {
                 const thepath = paper.project.getItems({ name: 'bruh' })[0]
+                console.log({thepath})
                 thepath.add(event.point)
             }
         }
 
         view.onMouseUp = () => {
-            setIsDrawing(false)
+            // setIsDrawing(false)
+            isDrawing.current = false
             updateSvg()
         }
     }, [display])
@@ -78,7 +82,7 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
         let lastPointCount = 0;
       
         paper.view.on('frame', (event) => {
-            const elapsed = event.time;
+            if(isDrawing.current) return
           const find = paper.project.getItems({ name: 'bruh' })
         //   console.log({ find })
           if (!threedyPoints.current || find.length === 0) return;
@@ -111,7 +115,6 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
             let minX = Infinity, minY = Infinity;
             let maxX = -Infinity, maxY = -Infinity;
 
-      
             threedyPoints.current.forEach(({ x, y }) => {
               if (x < minX) minX = x;
               if (y < minY) minY = y;

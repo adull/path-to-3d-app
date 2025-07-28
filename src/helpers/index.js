@@ -91,9 +91,7 @@ const propertiesToParts = ({ properties, interval }) => {
 
 
 const dumbPropToPart = ({ properties }) => {
-  console.log({ properties })
   const _parts = properties.getParts()
-  console.log({_parts})
     const ipl = properties.inst.partial_lengths
     _parts.push(ipl[ipl.length])
 
