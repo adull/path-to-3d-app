@@ -14,7 +14,7 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
     const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
     const initScaleRef = useRef(0)
-    const framesToEaseScaling = 6000
+    const framesToEaseScaling = 1000
 
     
 
@@ -90,8 +90,7 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
             // path.removeSegments(); // Clear previous drawing
 
             const path = new paper.Path({
-                // strokeColor: new paper.Color(0, 0, 0),
-                strokeColor: 'red',
+                strokeColor: new paper.Color(0, 0, 0),
                 strokeWidth: 8,
                 name: 'bruh',
                 strokeCap: 'round',
@@ -163,11 +162,17 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
 
               const frameIndex = currentFrameRef.current
 
-              const _x = (normalizedX * (framesToEaseScaling - frameIndex) + _normalizedX * frameIndex) / framesToEaseScaling
-              const _y = (normalizedY * (framesToEaseScaling - frameIndex) + _normalizedY * frameIndex) / framesToEaseScaling
+              const t = frameIndex / framesToEaseScaling;
 
-            //   console.log({ path, normalizedX, normalizedY})
-            //   path.add(new paper.Point(normalizedX, normalizedY));
+            //   const easeInOut = (t) => 0.5 * (1 - Math.cos(Math.PI * t));
+            const easeInOutQuart = (t) => t < 0.5
+                        ? 8 * t * t * t * t
+                        : 1 - Math.pow(-2 * t + 2, 4) / 2;
+            const easedT = easeInOutQuart(t);
+
+            const _x = normalizedX * (1 - easedT) + _normalizedX * easedT;
+            const _y = normalizedY * (1 - easedT) + _normalizedY * easedT;
+
             path.add(new paper.Point(_x, _y));
 
             if(isDragging.current) {
@@ -179,8 +184,6 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
             } else {
                 const scaleX = (viewBounds.width - padding * 2) / dataWidth;
             const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-            // console.log({scaleX, scaleY})
-            // console.log({ scaleX })
             const scale = Math.min(scaleX, scaleY);
       
             const offsetX = viewBounds.left + padding;
