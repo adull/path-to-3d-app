@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { paper } from 'paper'
 
-const Draw = ({ setSvgData, threedyPoints }) => {
+const Draw = ({ setSvgData, threedyPoints, setIsDrawing }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
@@ -34,6 +34,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         }
 
         view.onMouseDrag = (event) => {
+            setIsDrawing(true)
             const find = paper.project.getItems({ name: 'bruh' })
             if(find.length === 0) {
                 const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
@@ -45,6 +46,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         }
 
         view.onMouseUp = () => {
+            setIsDrawing(false)
             updateSvg()
         }
     }, [display])
@@ -52,7 +54,9 @@ const Draw = ({ setSvgData, threedyPoints }) => {
     useEffect(() => {
         if (!paper || !paper.view) return;
 
-        if(threedyPoints.length === 0) {
+        console.log({ threedyPoints })
+
+        if(threedyPoints.current.length === 0) {
             const find = paper.project.getItems({ name: 'bruh' })
             if(find.length !== 0) {
                 find[0].remove()
@@ -71,7 +75,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
       
-        threedyPoints.forEach(({ x, y }) => {
+        threedyPoints.current.forEach(({ x, y }) => {
           if (x < minX) minX = x;
           if (y < minY) minY = y;
           if (x > maxX) maxX = x;
@@ -100,7 +104,7 @@ const Draw = ({ setSvgData, threedyPoints }) => {
           }
         });
       
-        threedyPoints.forEach(({ x, y }) => {
+        threedyPoints.current.forEach(({ x, y }) => {
           const normalizedX = (x - minX) * scale + offsetX;
           const flippedY = maxY - y;
           const normalizedY = (flippedY) * scale + offsetY;

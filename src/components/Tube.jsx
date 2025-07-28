@@ -4,7 +4,7 @@ import { extend, useFrame } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
 import { toonShader } from '../helpers/shaders'
 
-export default function Tube({ onDrag, bodyRefs }) {
+export default function Tube({ onDrag, bodyRefs, dontrender }) {
   const meshRef = useRef()
 
   const ToonMaterial = shaderMaterial(
@@ -16,6 +16,7 @@ export default function Tube({ onDrag, bodyRefs }) {
   extend({ ToonMaterial })
 
   useFrame(() => {
+    if (dontrender) return
     const currentPoints = getCurrentPoints(bodyRefs)
     // console.log({ currentPoints })
     // console.log({ currentPoints})

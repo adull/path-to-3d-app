@@ -91,7 +91,9 @@ const propertiesToParts = ({ properties, interval }) => {
 
 
 const dumbPropToPart = ({ properties }) => {
+  console.log({ properties })
   const _parts = properties.getParts()
+  console.log({_parts})
     const ipl = properties.inst.partial_lengths
     _parts.push(ipl[ipl.length])
 
@@ -148,6 +150,7 @@ const dumbPropToPart = ({ properties }) => {
       const dy = p2.y - p1.y
       const length = Math.sqrt(dx * dx + dy * dy)
       const angle = Math.atan2(dy, dx)
+      // const angle = 0
 
       parts.push({
         start: p1,
@@ -158,6 +161,8 @@ const dumbPropToPart = ({ properties }) => {
     }
     return parts
 }
+
+const smartPropToPart = () => {}
 
 const getMaxVals = (pts) => {
   let [minX, minY] = [Infinity, Infinity]

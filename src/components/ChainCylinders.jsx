@@ -7,15 +7,16 @@ import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints }) => {
+const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints, isDrawing }) => {
+    console.log({ parts, damping, setOrbitControls, focusPath, updatePoints, isDrawing })
     //setting up hooks
     const [isDragging, setIsDragging] = useState(false)
-    // const [offset, setOffset] = useState({x: 0, y: 0})
-    const [triggerRerender, hack] = useState(0)
+    const [jointSize, setJointSize] = useState(0.1)
 
     const bodyRefs = useRef([])
     const pointsRef = useRef([])
     const offsetRef = useRef({x: 0, y:0})
+    const positionedParts = useRef([])
 
     const dampingRef = useRef(damping)
     
@@ -23,33 +24,72 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     
     const raycaster = useRef(new THREE.Raycaster())
     const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0,0,1), 0), [])
-
-    if(bodyRefs.current.length !== parts.length) {
-        bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
-    }
-
-    // useeffect zone
-    useEffect(() => {
-        const _pts = bodyRefs.current.map(ref => {
+    
+    const getPtsAndMaxVals = () => {
+        const points = bodyRefs.current.map(ref => {
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         })
         
 
-        const maxVals = getMaxVals(_pts)
+        const maxVals = getMaxVals(points)
+        return { points, maxVals }
+    }
+
+    const setOffset = (points, maxVals) => {
+        // console.log({ maxVals })
         const avgX = (maxVals?.maxX + maxVals?.minX) / 2
         const avgY = (maxVals?.maxY + maxVals?.minY) / 2
 
-        const newPts = _pts.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
-        pointsRef.current = newPts
+        // const newPts = points.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
+        // console.log({ newPts })
+        // pointsRef.current = newPts
 
-        console.log({ avgX, avgY })
+        // console.log({ x: avgX ? avgX : 0, y: avgY ? avgY : 0 })
 
-        // setOffset({x: avgX ? avgX : 0, y: avgY ? avgY : 0})
-        offsetRef.current = {x: avgX ? avgX : 0, y: avgY ? avgY : 0}
-        focusPath(maxVals)
+        return { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
+        // offsetRef.current = { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
+    }
+
+    if(bodyRefs.current.length !== parts.length) {
+        bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
+    }
+
+
+    const offset = useMemo(() => {
+        console.log({ parts})
+        if (!parts.length) return { x: 0, y: 0 };
+        const points = parts.map(part => {
+            const pos = {x: (part.start.x + part.end.x) /2, y: (part.start.y + part.end.y) /2}
+            // console.log(pos)
+            return pos
+        })
+        const maxVals = getMaxVals(points)
+        const avgX = (maxVals?.maxX + maxVals?.minX) / 2
+        const avgY = (maxVals?.maxY + maxVals?.minY) / 2
+
+        console.log({ maxVals })
+        return { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
+
+        
+        // return { x: 0, y: 0}
 
     }, [parts])
+    // const offset = { x: 0, y: 0}
+    // useeffect zone
+    useEffect(() => {
+        const {points, maxVals} = getPtsAndMaxVals()
+        focusPath(maxVals)        
+    }, [parts])
+
+    // useEffect(() => {
+    //     console.log(`isdrawinggg`)
+    //     if(isDrawing) {
+    //         setJointSize(100)
+    //     } else {
+    //         setJointSize(0.1)
+    //     }
+    // },[isDrawing])
 
     // useEffect(() => {
     //     console.log(triggerRerender)
@@ -86,6 +126,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     // this costs a billion dollars
     useFrame(({ camera, mouse: mousePos}) => {
         const body = bodyRefs.current[draggingIndexRef.current]
+        // console.log(body)
 
         
         if(!isDragging) return
@@ -102,11 +143,13 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
 
         const current = body.current?.translation()
         const force = new THREE.Vector3().subVectors(target, current).multiplyScalar(30)
-
+        // console.log({ force })
+        
         body.current?.applyImpulse(force, true)
     })
 
     const dragClosestRigidBody = (e) => {
+        console.log(`this fire`)
         setOrbitControls(false);
         setIsDragging(true)
       
@@ -136,21 +179,29 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     //   console.log(`chain culinders rerender`)
     return (
         <>
+        {/* {console.log({offset})} */}
         {parts.map((part, index) => {
-            // console.log({ offset })
-            const midX = (part.start.x + part.end.x) / 2 - offsetRef.current.x
-            const midY = (part.start.y + part.end.y) / 2 - offsetRef.current.y
+            // console.log({ part })
+
+        {/* {positionedParts.current?.map((part, index) => { */}
+            // console.log({ part })
+            const midX = (part.start.x + part.end.x) / 2 - offset.x
+            const midY = (part.start.y + part.end.y) / 2 - offset.y
+            // const midX = (part.start.x + part.end.x) / 2
+            // const midY = (part.start.y + part.end.y) / 2
             // const z = point?.z ? point.z : 0
             const z = 0
 
             const position = [ midX, midY, z]
+            // const position = [part.x, part.y, z]
+            // console.log({ position})
             // console.log({ midX, midY, z})
             const rotation = [0,0, part.angle]
             
             return (
-                <group>
-                    <RigidBody key={`rigidBody_${index}`} ref={bodyRefs.current[index]} linearDamping={damping}
-                       position={position} type="dynamic" colliders="cuboid">
+                <group key={`rigidBody_${index}`}>
+                    <RigidBody ref={bodyRefs.current[index]} linearDamping={damping}
+                       position={position} type="dynamic" colliders={"cuboid"}>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
                             <boxGeometry args={[part.length,0.1,10]} />
                             <meshStandardMaterial 
@@ -160,7 +211,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                     </RigidBody>
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
-                            key={`joint-${index}`}
+                            // key={`joint-${index}`}
                             length={part.length}
                             bodyA={bodyRefs.current[index]}
                             bodyB={bodyRefs.current[index -1]}
@@ -169,8 +220,13 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                         <></>
                     }
                 </group>
+                
             )
         })}
+        <mesh position={[offset.x, offset.y, 0]}>
+            <sphereGeometry args={[4]} />
+            <meshBasicMaterial color="red" />
+        </mesh>
         <Tube onDrag={dragClosestRigidBody} bodyRefs={bodyRefs.current} />
         </>
     )
