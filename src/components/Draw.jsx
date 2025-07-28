@@ -1,10 +1,13 @@
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useContext } from 'react'
 import { paper } from 'paper'
+import ThreedyPointsContext from '../context/ThreedyPointsContext'
 
 const Draw = ({ setSvgData, threedyPoints, setIsDrawing }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
+    const uhh = useContext(ThreedyPointsContext)
+    console.log({ uhh })
 
     useEffect(() => {
         const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
@@ -51,48 +54,10 @@ const Draw = ({ setSvgData, threedyPoints, setIsDrawing }) => {
         }
     }, [display])
 
+
+
     useEffect(() => {
         if (!paper || !paper.view) return;
-
-        console.log({ threedyPoints })
-
-        if(threedyPoints.current.length === 0) {
-            const find = paper.project.getItems({ name: 'bruh' })
-            if(find.length !== 0) {
-                find[0].remove()
-            } 
-            return
-        }
-
-        paper.project.getItems({ name: 'bruh' }).forEach((item) => {
-            item.remove()
-        })
-      
-        const viewBounds = paper.view.bounds;
-        // console.log({ viewBounds })
-        const padding = 20;
-    
-        let minX = Infinity, minY = Infinity;
-        let maxX = -Infinity, maxY = -Infinity;
-      
-        threedyPoints.current.forEach(({ x, y }) => {
-          if (x < minX) minX = x;
-          if (y < minY) minY = y;
-          if (x > maxX) maxX = x;
-          if (y > maxY) maxY = y;
-        });
-
-        // console.log({ maxX, maxY })
-      
-        const dataWidth = maxX - minX;
-        const dataHeight = maxY - minY;
-
-        const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-        const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-        const scale = Math.min(scaleX, scaleY);
-      
-        const offsetX = viewBounds.left + padding;
-        const offsetY = viewBounds.top + padding;
       
         const path = new paper.Path({
           strokeColor: new paper.Color(0, 0, 0),
@@ -104,17 +69,72 @@ const Draw = ({ setSvgData, threedyPoints, setIsDrawing }) => {
           }
         });
       
-        threedyPoints.current.forEach(({ x, y }) => {
-          const normalizedX = (x - minX) * scale + offsetX;
-          const flippedY = maxY - y;
-          const normalizedY = (flippedY) * scale + offsetY;
-          path.add(new paper.Point(normalizedX, normalizedY));
+        let lastPointCount = 0;
+      
+        paper.view.on('frame', () => {
+            // console.log({uhh })
+          if (!uhh.current) return;
+      
+          if (uhh.current.length > 0) {
+            lastPointCount = uhh.current.length;
+      
+            // path.removeSegments(); // Clear previous drawing
+            const find = paper.project.getItems({ name: 'bruh' })
+            if(find.length !== 0) {
+                find[0].remove()
+            } 
+
+            const path = new paper.Path({
+                strokeColor: new paper.Color(0, 0, 0),
+                strokeWidth: 8,
+                name: 'bruh',
+                strokeCap: 'round',
+                data: {
+                  createdAt: performance.now()
+                }
+              });
+
+
+      
+            if (lastPointCount === 0) return;
+      
+            const viewBounds = paper.view.bounds;
+            const padding = 20;
+      
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
+      
+            uhh.current.forEach(({ x, y }) => {
+              if (x < minX) minX = x;
+              if (y < minY) minY = y;
+              if (x > maxX) maxX = x;
+              if (y > maxY) maxY = y;
+            });
+      
+            const dataWidth = maxX - minX;
+            const dataHeight = maxY - minY;
+      
+            const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+            const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+            const scale = Math.min(scaleX, scaleY);
+      
+            const offsetX = viewBounds.left + padding;
+            const offsetY = viewBounds.top + padding;
+      
+            uhh.current.forEach(({ x, y }) => {
+              const normalizedX = (x - minX) * scale + offsetX;
+              const flippedY = maxY - y;
+              const normalizedY = flippedY * scale + offsetY;
+              path.add(new paper.Point(normalizedX, normalizedY));
+            });
+          }
         });
       
         return () => {
-          path.remove()
+          path.remove();
+          paper.view.off('frame');
         };
-      }, [threedyPoints]);
+      }, [uhh]);
 
 
     const erase = () => {

@@ -30,7 +30,6 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
             const pos = ref.current?.translation()
             return pos ? new THREE.Vector3(pos.x, pos.y, pos.z) : new THREE.Vector3()
         })
-        
 
         const maxVals = getMaxVals(points)
         return { points, maxVals }
@@ -129,7 +128,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
         // console.log(body)
 
         
-        if(!isDragging) return
+        // if(!isDragging) return
         const pts = bodyRefs.current.map((body) => {
             return body.current.translation()
         })
@@ -179,40 +178,29 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     //   console.log(`chain culinders rerender`)
     return (
         <>
-        {/* {console.log({offset})} */}
         {parts.map((part, index) => {
-            // console.log({ part })
-
-        {/* {positionedParts.current?.map((part, index) => { */}
-            // console.log({ part })
             const midX = (part.start.x + part.end.x) / 2 - offset.x
             const midY = (part.start.y + part.end.y) / 2 - offset.y
-            // const midX = (part.start.x + part.end.x) / 2
-            // const midY = (part.start.y + part.end.y) / 2
-            // const z = point?.z ? point.z : 0
             const z = 0
 
             const position = [ midX, midY, z]
-            // const position = [part.x, part.y, z]
-            // console.log({ position})
-            // console.log({ midX, midY, z})
             const rotation = [0,0, part.angle]
+            const partLength = part.length > 20 ? 20 : part.length
             
             return (
                 <group key={`rigidBody_${index}`}>
                     <RigidBody ref={bodyRefs.current[index]} linearDamping={damping}
-                       position={position} type="dynamic" colliders={"cuboid"}>
+                       position={position} type="dynamic" colliders={"cuboid"} sensor>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
-                            <boxGeometry args={[part.length,0.1,10]} />
+                            <boxGeometry args={[partLength,0.3,10]} />
                             <meshStandardMaterial 
-                            // transparent opacity={0}
+                            transparent opacity={0}
                             />
                         </mesh>
                     </RigidBody>
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
-                            // key={`joint-${index}`}
-                            length={part.length}
+                            length={partLength}
                             bodyA={bodyRefs.current[index]}
                             bodyB={bodyRefs.current[index -1]}
                         />
@@ -220,13 +208,8 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
                         <></>
                     }
                 </group>
-                
             )
         })}
-        <mesh position={[offset.x, offset.y, 0]}>
-            <sphereGeometry args={[4]} />
-            <meshBasicMaterial color="red" />
-        </mesh>
         <Tube onDrag={dragClosestRigidBody} bodyRefs={bodyRefs.current} />
         </>
     )
