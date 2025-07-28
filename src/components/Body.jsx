@@ -17,7 +17,7 @@ const Body = () => {
     }
 
     const hmm = (pts) => {
-        // console.log({ pts})
+    //     // console.log({ pts})
         threedyPointsRef.current = pts
     }
     return (
