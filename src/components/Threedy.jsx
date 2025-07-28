@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, forwardRef } from 'react'
-import { extractPathData, propertiesToParts, dumbPropToPart } from '../helpers/index'
+import { extractPathData, propertiesToParts, smartPropToPart, dumbPropToPart } from '../helpers/index'
 import { svgPathProperties } from 'svg-path-properties'
 
 import { Canvas } from '@react-three/fiber'
@@ -53,7 +53,9 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
         // propertiesToParts returns an array. 
         // Changing the value of interval increases the resolution but can result in choppiness in framerate for 3js
         // const _parts = propertiesToParts({ properties, interval: 1})
-        const _parts = dumbPropToPart({ properties })
+        // const _parts = dumbPropToPart({ properties })
+        const _parts = smartPropToPart({ properties })
+        console.log({_parts})
         setParts(_parts)
 
         focusPath()

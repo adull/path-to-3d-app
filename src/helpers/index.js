@@ -160,7 +160,103 @@ const dumbPropToPart = ({ properties }) => {
     return parts
 }
 
-const smartPropToPart = () => {}
+const smartPropToPart = ({properties}) => {
+  const _parts = properties.getParts()
+    const ipl = properties.inst.partial_lengths
+    _parts.push(ipl[ipl.length])
+
+    const additionalPoints = []
+    const parts = []
+
+    // controlPoints.forEach(len => {
+    //   for (let offset = -5; offset <= 5; offset++) {
+    //     const adjustedLen = len + offset * 0.1
+    //     if (adjustedLen >= 0 && adjustedLen <= properties.getTotalLength()) {
+    //       additionalPoints.push(adjustedLen)
+    //     }
+    //   }
+    // })
+
+    const allLengths = [...properties.inst.partial_lengths, ...additionalPoints]
+    .filter(v => !isNaN(v))
+    .sort((a, b) => a - b)
+
+  const MIN_CLUSTER_SIZE = 3
+const MAX_CLUSTER_LENGTH = 4  // adjust this threshold
+
+for (let i = 0; i < allLengths.length - 1; ) {
+  let clusterStart = i
+  let clusterEnd = i + 1
+  let totalLength = 0
+
+  while (
+    clusterEnd < allLengths.length &&
+    totalLength < MAX_CLUSTER_LENGTH &&
+    clusterEnd - clusterStart < 10
+  ) {
+    const pA = properties.getPointAtLength(allLengths[clusterEnd - 1])
+    const pB = properties.getPointAtLength(allLengths[clusterEnd])
+    pA.y *= -1
+    pB.y *= -1
+
+    const dx = pB.x - pA.x
+    const dy = pB.y - pA.y
+    totalLength += Math.sqrt(dx * dx + dy * dy)
+
+    if (totalLength < MAX_CLUSTER_LENGTH) {
+      clusterEnd++
+    }
+  }
+
+  const clusterSize = clusterEnd - clusterStart
+
+  if (clusterSize >= MIN_CLUSTER_SIZE) {
+    // Merge cluster
+    const p1 = properties.getPointAtLength(allLengths[clusterStart])
+    const p2 = properties.getPointAtLength(allLengths[clusterEnd])
+
+    p1.y *= -1
+    p2.y *= -1
+
+    const dx = p2.x - p1.x
+    const dy = p2.y - p1.y
+    const length = Math.sqrt(dx * dx + dy * dy)
+    const angle = Math.atan2(dy, dx)
+
+    parts.push({
+      start: p1,
+      end: p2,
+      length,
+      angle,
+    })
+
+    i = clusterEnd // Skip over merged cluster
+  } else {
+    // Just push normal segment
+    const p1 = properties.getPointAtLength(allLengths[i])
+    const p2 = properties.getPointAtLength(allLengths[i + 1])
+
+    p1.y *= -1
+    p2.y *= -1
+
+    const dx = p2.x - p1.x
+    const dy = p2.y - p1.y
+    const length = Math.sqrt(dx * dx + dy * dy)
+    const angle = Math.atan2(dy, dx)
+
+    parts.push({
+      start: p1,
+      end: p2,
+      length,
+      angle,
+    })
+
+    i++
+  }
+}
+return parts
+
+}
 
 const getMaxVals = (pts) => {
   let [minX, minY] = [Infinity, Infinity]
@@ -180,4 +276,4 @@ const getMaxVals = (pts) => {
   return {minX , maxX, minY, maxY}
 }
 
-export { extractPathData, propertiesToParts, dumbPropToPart, getMaxVals }
+export { extractPathData, propertiesToParts, smartPropToPart, dumbPropToPart, getMaxVals }
