@@ -7,10 +7,10 @@ import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints, isDrawing }) => {
-    console.log({ parts, damping, setOrbitControls, focusPath, updatePoints, isDrawing })
+const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints, setIsDragging, isDrawing }) => {
+    console.log({ parts, damping, setOrbitControls, focusPath, updatePoints, setIsDragging, isDrawing })
     //setting up hooks
-    const [isDragging, setIsDragging] = useState(false)
+    // const [isDragging, setIsDragging] = useState(false)
     const [jointSize, setJointSize] = useState(0.1)
 
     const bodyRefs = useRef([])

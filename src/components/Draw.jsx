@@ -1,14 +1,20 @@
 import { useEffect, useState, useRef, useContext } from 'react'
 import { paper } from 'paper'
+import { getMaxVals } from '../helpers/index'
+
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
+import DraggingContext from '../context/DraggingContext'
 
 const Draw = ({ setSvgData, setIsDrawing }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
     const threedyPoints = useContext(ThreedyPointsContext)
+    const isDragging = useContext(DraggingContext)
+    const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
     const initScaleRef = useRef(0)
+    const framesToEaseScaling = 6000
 
     
 
@@ -82,9 +88,6 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
             lastPointCount = threedyPoints.current.length;
       
             // path.removeSegments(); // Clear previous drawing
-            if(find.length !== 0) {
-                // find[0].remove()
-            } 
 
             const path = new paper.Path({
                 // strokeColor: new paper.Color(0, 0, 0),
@@ -121,62 +124,79 @@ const Draw = ({ setSvgData, setIsDrawing }) => {
             let dataHeight = maxY - minY;
 
             // first time we scale
-            if(initScaleRef.current === 0) {
-                let _minX = Infinity, _minY = Infinity;
-                let _maxX = -Infinity, _maxY = -Infinity;
-                // console.log(find[0].segments)
-                find[0].segments.forEach((segment) => {
-                    // console.log(segment.point.x)
-                    const x  = segment.point.x
-                    const y = segment.point.y
-                    if (x < _minX) _minX = x;
-                    if (y < _minY) _minY = y;
-                    if (x > _maxX) _maxX = x;
-                    if (y > _maxY) _maxY = y;
-                  });
+            if(currentFrameRef.current < framesToEaseScaling) {
+                const find = paper.project.getItems({ name: 'bruh' })
+                // console.log(find[0])
+                const pointsFromSegments = find[0].segments.map(segment => segment.point)
+                // console.log({viewBounds})
+                const maxVals = getMaxVals(pointsFromSegments)
+                // console.log({ maxVals})
 
-                  console.log({_minX, _maxX, _minY, _maxY})
-                  let drawnWidth = _maxX - _minX
-                  let drawnHeight = _maxY - _minY
-                  xPadding =_minX
-                //   yPadding = viewBounds.height - _maxY 
-                yPadding = _maxY - (_maxY - _minY)
-                console.log({yPadding})
+                
+                  xPadding = maxVals.minX
+                // yPadding = viewBounds.height - maxVals.minY
+                yPadding = maxVals.minY
+                // console.log({xPadding, yPadding})
 
 
-                  const scaleX = (drawnWidth) / dataWidth;
-            const scaleY = (drawnHeight) / dataHeight;
-            console.log({ scaleX, scaleY})
-            const scale = Math.min(scaleX, scaleY);
       
-            console.log({viewBounds})
+            // console.log({viewBounds})
             const offsetX = xPadding;
             const offsetY = yPadding;
+
+            const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+            const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+            // console.log({scaleX, scaleY})
+            // console.log({ scaleX })
+            const scale = Math.min(scaleX, scaleY);
+      
+            const _offsetX = viewBounds.left + padding;
+            const _offsetY = viewBounds.top + padding;
       
             threedyPoints.current.forEach(({ x, y }) => {
                 // console.log(`point`)
+              const normalizedX = (x - minX) + offsetX;
+              const _normalizedX = (x - minX) * scale + _offsetX;
+              const flippedY = maxY - y;
+              const normalizedY = flippedY + offsetY;
+              const _normalizedY = flippedY * scale + _offsetY;
+
+              const frameIndex = currentFrameRef.current
+
+              const _x = (normalizedX * (framesToEaseScaling - frameIndex) + _normalizedX * frameIndex) / framesToEaseScaling
+              const _y = (normalizedY * (framesToEaseScaling - frameIndex) + _normalizedY * frameIndex) / framesToEaseScaling
+
+            //   console.log({ path, normalizedX, normalizedY})
+            //   path.add(new paper.Point(normalizedX, normalizedY));
+            path.add(new paper.Point(_x, _y));
+
+            if(isDragging.current) {
+                currentFrameRef.current = currentFrameRef.current + 1
+            }
+
+            });
+             
+            } else {
+                const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+            const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+            // console.log({scaleX, scaleY})
+            // console.log({ scaleX })
+            const scale = Math.min(scaleX, scaleY);
+      
+            const offsetX = viewBounds.left + padding;
+            const offsetY = viewBounds.top + padding;
+      
+            threedyPoints.current.forEach(({ x, y }) => {
               const normalizedX = (x - minX) * scale + offsetX;
               const flippedY = maxY - y;
               const normalizedY = flippedY * scale + offsetY;
-            //   console.log({ path, normalizedX, normalizedY})
               path.add(new paper.Point(normalizedX, normalizedY));
-            });
-                initScaleRef.current = 10
+            });   
             }
-      
-            // const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-            // const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-            // const scale = Math.min(scaleX, scaleY);
-      
-            // const offsetX = viewBounds.left + padding;
-            // const offsetY = viewBounds.top + padding;
-      
-            // threedyPoints.current.forEach(({ x, y }) => {
-            //   const normalizedX = (x - minX) * scale + offsetX;
-            //   const flippedY = maxY - y;
-            //   const normalizedY = flippedY * scale + offsetY;
-            //   path.add(new paper.Point(normalizedX, normalizedY));
-            // });
+
+            if(find.length !== 0) {
+                find[0].remove()
+            }
           } else {
             // console.log(`reset huh?`)
             // const find = paper.project.getItems({ name: 'bruh' })
