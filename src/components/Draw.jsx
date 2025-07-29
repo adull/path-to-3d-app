@@ -4,17 +4,15 @@ import { getMaxVals } from '../helpers/index'
 
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
 
-const Draw = ({ setSvgData }) => {
+const Draw = ({ setSvgData, resetVersion }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
-    const {threedyPointsRef, isDraggingRef} = useContext(ThreedyPointsContext)
+    const {threedyPointsRef, isDraggingRef, timestampRef} = useContext(ThreedyPointsContext)
     const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
     const framesToEaseScaling = 1000
-
-    
 
     useEffect(() => {
         const element = parentRef.current;
@@ -87,27 +85,19 @@ const Draw = ({ setSvgData }) => {
         });
       
         let lastPointCount = 0;
-        let lastPoints = null
       
         paper.view.on('frame', (event) => {
-            if(isDrawing.current) return
+            if(isDrawing.current || !timestampRef.current) return
+            const elapsed = performance.now() - timestampRef.current;
+            if (elapsed > 10000) return
           const find = paper.project.getItems({ name: 'bruh' })
         //   console.log({ find })
           if (!threedyPointsRef.current || find.length === 0) return;
-            const currentPoints = threedyPointsRef.current
-            if(currentPoints === lastPoints) {
-                console.log(`its the same bruh..`)
-            } else {
-                // console.log(`11`)
-                // console.log(currentPoints)
-                // console.log(lastPoints)
-                // console.log(`22`)
-            }
-            lastPoints = currentPoints;
 
       
           if (threedyPointsRef.current.length > 0) {
             lastPointCount = threedyPointsRef.current.length;
+            if (lastPointCount === 0) return;
       
             // path.removeSegments(); // Clear previous drawing
 
@@ -123,7 +113,7 @@ const Draw = ({ setSvgData }) => {
 
 
       
-            if (lastPointCount === 0) return;
+            
       
             const viewBounds = paper.view.bounds;
             let padding = 20;
@@ -236,16 +226,12 @@ const Draw = ({ setSvgData }) => {
         };
       }, []);
 
-
-    const erase = () => {
-        console.log(`this is hooked up`)
-        const project = paper.project
-
-        console.log({ al: project.activeLayer.children })
-        const layer = project._children[0]
-        const path = layer._children[0]
-        path.segments = []
-    }
+      useEffect(() => {
+        const find = paper.project.getItems({ name: 'bruh' })
+        if(find.length !== 0) {
+            find[0].remove()
+        }
+      }, [resetVersion])
 
     return (
         <div className="w-full h-full flex flex-col" ref={parentRef}>

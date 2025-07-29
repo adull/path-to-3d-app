@@ -6,6 +6,7 @@ import { Canvas } from '@react-three/fiber'
 import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
 
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import { invalidate } from '@react-three/fiber'
 
 import { Physics } from '@react-three/rapier'
 import ChainCylinders from './ChainCylinders'
@@ -13,7 +14,7 @@ import ChainCylinders from './ChainCylinders'
 import * as THREE from 'three'
 
 
-const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
+const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimestamp, resetVersion }) => {
     const [parts, setParts] = useState([])
     
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
@@ -39,33 +40,37 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
         const cam = camRef.current;
         if(gridRef.current && cam) {
             gridRef.current.position.y = 0
-            cam.position.set(100, 25, -40);
+            cam.position.set(120, 5, -40);
         }
     }, [gridRef.current, camRef.current])
 
     useEffect(() => {
-        // setOrbitControlsEnabled(false)
         if(controlsRef?.current) controlsRef.current.enabled = false
-        // console.log(`when does svgdata useeffect fire?`)
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         
-        // propertiesToParts returns an array. 
-        // Changing the value of interval increases the resolution but can result in choppiness in framerate for 3js
-        // const _parts = propertiesToParts({ properties, interval: 1})
-        // const _parts = dumbPropToPart({ properties })
         const _parts = smartPropToPart({ properties })
         console.log({_parts})
         setParts(_parts)
 
         focusPath()
         if(controlsRef?.current) controlsRef.current.enabled = true
-        // setOrbitControlsEnabled(true)
-        // setTimeout(() => {
-        //     setOrbitControlsEnabled(true)
-        //     console.log(`ye`)
-        // }, 1000)
     }, [svgData])
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+          const cam = camRef.current;
+          const grid = gridRef.current;
+          if (grid && cam) {
+            grid.position.set(0, 0, 0);
+            cam.position.set(100, 25, -40);
+            cam.updateProjectionMatrix();
+            invalidate();
+          }
+        }, 50);
+      
+        return () => clearTimeout(timeout);
+      }, [resetVersion]);
 
     const download = () => {
         const exporter = new OBJExporter()
@@ -92,6 +97,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
 
             const cam = camRef?.current
             if(cam) {
+                console.log({cam})
                 
                 const xDiff  = maxVals.maxX - maxVals.minX
                 const yDiff = maxVals.maxY - maxVals.minY
@@ -129,6 +135,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
                                     setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} 
                                     focusPath={focusPath} 
                                     updatePoints={updatePoints}
+                                    updateTimestamp={updateTimestamp}
                                     setIsDragging={setIsDragging}
                                     isDrawing={isDrawing} />
                 </Physics>

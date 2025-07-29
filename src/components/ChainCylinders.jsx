@@ -10,16 +10,12 @@ import { toonShader } from '../helpers/shaders'
 import ThreedyContext from '../context/ThreedyPointsContext'
 
 
-const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setIsDragging }) => {
+const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, updateTimestamp, setIsDragging }) => {
     //setting up hooks
-    // const [isDragging, setIsDragging] = useState(false)
-    const [jointSize, setJointSize] = useState(0.1)
 
     const bodyRefs = useRef([])
     const bodyType = useRef('fixed')
-    const { isDraggingRef, dampingRef } = useContext(ThreedyContext)
-
-    // const dampingRef = useRef(damping)
+    const { dampingRef, timestampRef } = useContext(ThreedyContext)
     
     const draggingIndexRef = useRef(-1)
     
@@ -106,17 +102,9 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
             if(draggingIndexRef.current > 0) {
                 
                 draggingIndexRef.current = -1;
-                const timeoutMap = {
-                    1: 5000,
-                    2: 3500,
-                    3: 1250,
-                    4: 750
-                }
-                const timeoutIndex = dampingRef.current < 4 ? dampingRef.current : 4
-                const timeoutLength = timeoutMap[timeoutIndex]
                 //  setTimeout(() => setIsDragging(false), timeoutLength)
-                console.log(`setisdraggingfalse`)
                 setIsDragging(false)
+                updateTimestamp()
             }
         }
         window.addEventListener('pointerup', handlePointerUp)
@@ -136,8 +124,12 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
             // }
             // return { x: 0, y: 0, z: 0}
         })
+        const elapsed = performance.now() - timestampRef.current;
+        if (elapsed > 10000) return
         updatePoints(pts)
         if(!body) return
+        updateTimestamp()
+        
 
         raycaster.current.setFromCamera(mousePos, camera)
         const target = new THREE.Vector3(0,0,0)
@@ -152,7 +144,9 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
     })
 
     const dragClosestRigidBody = (e) => {
+        updateTimestamp()
         setOrbitControls(false);
+        // console.log(`ummm`)
         setIsDragging(true)
       
         const virtualPoint = e.point;
@@ -192,7 +186,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
             
             return (
                 <group key={`rigidBody_${index}`}>
-                    <RigidBody ref={bodyRefs.current[index]} linearDamping={dampingRef.current} canSleep
+                    <RigidBody ref={bodyRefs.current[index]} linearDamping={4} canSleep
                        position={position} type={bodyType.current} colliders={"cuboid"} sensor>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
                             <boxGeometry args={[partLength,0.3,10]} />
@@ -203,9 +197,11 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
                     </RigidBody>
                     {index > 0 && index < parts.length ?  
                         <RopeJointBetween
+                        key={dampingRef.current}
                             length={partLength}
                             bodyA={bodyRefs.current[index]}
                             bodyB={bodyRefs.current[index -1]}
+                            stiffness={draggingIndexRef.current > 0 ? 10 : 10000}
                         />
                         :
                         <></>
