@@ -28,12 +28,11 @@ const Body = () => {
     }
 
     const updateDragging = (isDragging) => {
+        console.log({ isDragging })
         isDraggingRef.current = isDragging
     }
 
     useEffect(() => {
-        // console.log(gameRef.current)
-        console.log(window.innerHeight)
         const bullshitHeight = 100
         setHeight(window.innerHeight - bullshitHeight)
     }, [])
@@ -44,10 +43,7 @@ const Body = () => {
     }
     
     return (
-        <ThreedyPointsContext.Provider value={threedyPointsRef}>
-            <DraggingContext.Provider value={isDraggingRef}>
-                <DampingContext.Provider value={dampingRef}>
-                
+        <ThreedyPointsContext.Provider value={{threedyPointsRef, isDraggingRef, dampingRef}}>
                 <div className="container mx-auto pb-6 flex flex-col" ref={gameRef} style={{height}}>
                     <div className="flex flex-col md:flex-row flex-1">
                         <div className="border b-1 border-x-0 md:border-x-1 border-black h-[50%] md:h-[100%] w-full md:w-1/2">
@@ -59,8 +55,6 @@ const Body = () => {
                     </div>
                     <Controls reset={reset} setDamping={callSetDamping} />
                 </div>
-                </DampingContext.Provider>
-            </DraggingContext.Provider>
         </ThreedyPointsContext.Provider>
     );
 }

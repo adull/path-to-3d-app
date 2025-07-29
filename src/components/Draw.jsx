@@ -3,14 +3,12 @@ import { paper } from 'paper'
 import { getMaxVals } from '../helpers/index'
 
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
-import DraggingContext from '../context/DraggingContext'
 
 const Draw = ({ setSvgData }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
-    const threedyPoints = useContext(ThreedyPointsContext)
-    const isDragging = useContext(DraggingContext)
+    const {threedyPointsRef, isDraggingRef} = useContext(ThreedyPointsContext)
     const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
@@ -89,16 +87,27 @@ const Draw = ({ setSvgData }) => {
         });
       
         let lastPointCount = 0;
+        let lastPoints = null
       
         paper.view.on('frame', (event) => {
             if(isDrawing.current) return
           const find = paper.project.getItems({ name: 'bruh' })
         //   console.log({ find })
-          if (!threedyPoints.current || find.length === 0) return;
-        //   console.log(`i make it ehre??`)
+          if (!threedyPointsRef.current || find.length === 0) return;
+            const currentPoints = threedyPointsRef.current
+            if(currentPoints === lastPoints) {
+                console.log(`its the same bruh..`)
+            } else {
+                // console.log(`11`)
+                // console.log(currentPoints)
+                // console.log(lastPoints)
+                // console.log(`22`)
+            }
+            lastPoints = currentPoints;
+
       
-          if (threedyPoints.current.length > 0) {
-            lastPointCount = threedyPoints.current.length;
+          if (threedyPointsRef.current.length > 0) {
+            lastPointCount = threedyPointsRef.current.length;
       
             // path.removeSegments(); // Clear previous drawing
 
@@ -124,7 +133,7 @@ const Draw = ({ setSvgData }) => {
             let minX = Infinity, minY = Infinity;
             let maxX = -Infinity, maxY = -Infinity;
 
-            threedyPoints.current.forEach(({ x, y }) => {
+            threedyPointsRef.current.forEach(({ x, y }) => {
               if (x < minX) minX = x;
               if (y < minY) minY = y;
               if (x > maxX) maxX = x;
@@ -164,7 +173,7 @@ const Draw = ({ setSvgData }) => {
             const _offsetX = viewBounds.left + padding;
             const _offsetY = viewBounds.top + padding;
       
-            threedyPoints.current.forEach(({ x, y }) => {
+            threedyPointsRef.current.forEach(({ x, y }) => {
                 // console.log(`point`)
               const normalizedX = (x - minX) + offsetX;
               const _normalizedX = (x - minX) * scale + _offsetX;
@@ -187,7 +196,7 @@ const Draw = ({ setSvgData }) => {
 
             path.add(new paper.Point(_x, _y));
 
-            if(isDragging.current) {
+            if(isDraggingRef.current) {
                 currentFrameRef.current = currentFrameRef.current + 1
             }
 
@@ -201,7 +210,7 @@ const Draw = ({ setSvgData }) => {
             const offsetX = viewBounds.left + padding;
             const offsetY = viewBounds.top + padding;
       
-            threedyPoints.current.forEach(({ x, y }) => {
+            threedyPointsRef.current.forEach(({ x, y }) => {
               const normalizedX = (x - minX) * scale + offsetX;
               const flippedY = maxY - y;
               const normalizedY = flippedY * scale + offsetY;

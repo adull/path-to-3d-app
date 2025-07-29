@@ -16,7 +16,7 @@ const Controls = ({ reset, setDamping }) => {
         <div className={`flex justify-between`}>
             <div className={`flex`}>
                 <div style={{marginRight: 5}}>Stiffness</div>
-                <input value={damping.current} onChange={(e) => iHateReact(e.target.value)} min={1} max={100} type="range"></input>
+                <input value={damping} onChange={(e) => iHateReact(e.target.value)} min={1} max={100} type="range"></input>
             </div>
             <div className={`flex`}>
                 <a href="#" onClick={reset} style={{marginRight: 5}}>Reset</a>

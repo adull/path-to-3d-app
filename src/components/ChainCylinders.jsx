@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-import DampingContext from '../context/DampingContext'
+import ThreedyContext from '../context/ThreedyPointsContext'
 
 
 const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setIsDragging }) => {
@@ -17,7 +17,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
 
     const bodyRefs = useRef([])
     const bodyType = useRef('fixed')
-    const dampingRef = useContext(DampingContext)
+    const { isDraggingRef, dampingRef } = useContext(ThreedyContext)
 
     // const dampingRef = useRef(damping)
     
@@ -115,6 +115,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
                 const timeoutIndex = dampingRef.current < 4 ? dampingRef.current : 4
                 const timeoutLength = timeoutMap[timeoutIndex]
                 //  setTimeout(() => setIsDragging(false), timeoutLength)
+                console.log(`setisdraggingfalse`)
                 setIsDragging(false)
             }
         }
@@ -177,7 +178,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setI
 
         draggingIndexRef.current = closestIndex
       };
-    //   console.log(`chain culinders rerender`)
+      console.log(`chain culinders rerender`)
     return (
         <>
         {parts.map((part, index) => {
