@@ -1,12 +1,28 @@
-import { useRef } from 'react'
-import { OrbitControls } from '@react-three/drei'
+import { useState } from 'react'
+import DampingContext from '../context/DampingContext'
 
-const Controls = () => {
-    const controlsRef = useRef(null)
+const Controls = ({ reset, setDamping }) => {
+    const [damping, fuckingSetDamping] = useState(4)
+      
+    // const dampingRef = useContext(DampingContext)
 
-    return <OrbitControls ref={controlsRef} onChange={() => {
-        // console.log(camera.raycaster.camera.position)        
-    }} />
+    const iHateReact = (val) => {
+        fuckingSetDamping(val)
+        setDamping(val)
+    }
+
+
+    return (
+        <div className={`flex justify-between`}>
+            <div className={`flex`}>
+                <div style={{marginRight: 5}}>Stiffness</div>
+                <input value={damping.current} onChange={(e) => iHateReact(e.target.value)} min={1} max={100} type="range"></input>
+            </div>
+            <div className={`flex`}>
+                <a href="#" onClick={reset} style={{marginRight: 5}}>Reset</a>
+            </div>
+        </div>
+    )
 }
 
 export default Controls

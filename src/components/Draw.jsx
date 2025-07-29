@@ -14,16 +14,29 @@ const Draw = ({ setSvgData }) => {
     const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
     // const [initScale, setInitScale] = useState(0)
-    const initScaleRef = useRef(0)
     const framesToEaseScaling = 1000
 
     
 
     useEffect(() => {
-        const width = parentRef.current?.clientWidth ? parentRef.current.clientWidth : 0
-        let height = parentRef.current?.clientHeight ? parentRef.current.clientHeight : 0
-        setDisplay({ width, height })
-    }, [])
+        const element = parentRef.current;
+        if (!element) return;
+      
+        const observer = new ResizeObserver((entries) => {
+            console.log({ entries })
+          for (let entry of entries) {
+            const { width, height } = entry.contentRect;
+            setDisplay({ width, height });
+          }
+        });
+      
+        observer.observe(element);
+      
+        return () => {
+          observer.unobserve(element);
+          observer.disconnect();
+        };
+      }, []);
 
     useEffect(() => {
         paper.setup("paper")
@@ -33,8 +46,8 @@ const Draw = ({ setSvgData }) => {
 
         const updateSvg = () => {
             const thepath = paper.project.getItems({ name: 'bruh' })[0]
-            const svgData = thepath.exportSVG({ asString: true })
             if(thepath.segments.length > 3) {
+                const svgData = thepath.exportSVG({ asString: true })
                 setSvgData(svgData)
             }
         }
@@ -49,6 +62,7 @@ const Draw = ({ setSvgData }) => {
             } else {
                 const thepath = paper.project.getItems({ name: 'bruh' })[0]
                 thepath.add(event.point)
+                // console.log(event.point)
             }
         }
 

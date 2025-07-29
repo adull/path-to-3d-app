@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react'
+import React, { useRef, useState, useContext, useMemo, useEffect } from 'react'
 import { getMaxVals } from '../helpers/index'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
@@ -7,18 +7,19 @@ import * as THREE from 'three'
 import { extend, useFrame } from '@react-three/fiber'
 import { toonShader } from '../helpers/shaders'
 
-const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoints, setIsDragging, isDrawing }) => {
+import DampingContext from '../context/DampingContext'
+
+
+const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, setIsDragging }) => {
     //setting up hooks
     // const [isDragging, setIsDragging] = useState(false)
     const [jointSize, setJointSize] = useState(0.1)
 
     const bodyRefs = useRef([])
     const bodyType = useRef('fixed')
-    const pointsRef = useRef([])
-    const offsetRef = useRef({x: 0, y:0})
-    const positionedParts = useRef([])
+    const dampingRef = useContext(DampingContext)
 
-    const dampingRef = useRef(damping)
+    // const dampingRef = useRef(damping)
     
     const draggingIndexRef = useRef(-1)
     
@@ -95,9 +96,9 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
     //     hack(triggerRerender + 1)
     // }, [triggerRerender])
 
-    useEffect(() => {
-        dampingRef.current = parseInt(damping)
-    }, [damping])
+    // useEffect(() => {
+    //     dampingRef.current = parseInt(damping)
+    // }, [damping])
 
     useEffect(() => {
         const handlePointerUp =  () => { 
@@ -190,7 +191,7 @@ const ChainCylinders = ({ parts, damping, setOrbitControls, focusPath, updatePoi
             
             return (
                 <group key={`rigidBody_${index}`}>
-                    <RigidBody ref={bodyRefs.current[index]} linearDamping={damping} canSleep
+                    <RigidBody ref={bodyRefs.current[index]} linearDamping={dampingRef.current} canSleep
                        position={position} type={bodyType.current} colliders={"cuboid"} sensor>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
                             <boxGeometry args={[partLength,0.3,10]} />

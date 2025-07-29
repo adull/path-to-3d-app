@@ -17,7 +17,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
     const [parts, setParts] = useState([])
     
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
-    const [damping, setDamping] = useState(4)
+    
     const [exportRef, setExportRef] = useState(null)
     const [boxPos, setBoxPos] = useState({ x: 0, y: 0, z: 0 })
 
@@ -125,8 +125,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
                 <directionalLight color="white" position={[0, 0, 5]} />
                 <directionalLight color="white" position={[0, 5, 0]} />
                 <Physics gravity={[0,0,0]} >
-                    <ChainCylinders parts={parts} 
-                                    damping={damping} 
+                    <ChainCylinders parts={parts}  
                                     setOrbitControls={(bool) => setOrbitControlsEnabled(bool)} 
                                     focusPath={focusPath} 
                                     updatePoints={updatePoints}
@@ -141,8 +140,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing }) => {
                     rotation={[0, -Math.PI / 2, 0]}
                     />
             </Canvas>
-            <div>Stiffness</div>
-            <input value={damping} onChange={(e) => setDamping(e.target.value)} min={1} max={100} type="range"></input>
         </div>
     );
     }
