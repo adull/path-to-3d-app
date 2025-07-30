@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, use } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Draw from './Draw'
 import Threedy from './Threedy'
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
-import DraggingContext from '../context/DraggingContext'
-import DampingContext from '../context/DampingContext'
 import Controls from './Controls'
 
 const Body = () => {
