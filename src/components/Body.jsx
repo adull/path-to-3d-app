@@ -19,7 +19,8 @@ const Body = () => {
 
     const gameRef = useRef(null)
 
-    const reset = () => {
+    const reset = (e) => {
+        e.preventDefault()
         setSvgData(null)
         threedyPointsRef.current = []
         isDraggingRef.current = -1
