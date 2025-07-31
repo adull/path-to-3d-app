@@ -182,9 +182,9 @@ const smartPropToPart = ({properties}) => {
     .sort((a, b) => a - b)
 
   const MIN_CLUSTER_SIZE = 3
-const MAX_CLUSTER_LENGTH = 4  // adjust this threshold
+  const MAX_CLUSTER_LENGTH = 4
 
-for (let i = 0; i < allLengths.length - 1; ) {
+for (let i = 0; i < allLengths.length - 1; i++ ) {
   let clusterStart = i
   let clusterEnd = i + 1
   let totalLength = 0
@@ -250,12 +250,9 @@ for (let i = 0; i < allLengths.length - 1; ) {
       length,
       angle,
     })
-
-    i++
   }
 }
 return parts
-
 }
 
 const getMaxVals = (pts) => {
