@@ -50,7 +50,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
         const properties = new svgPathProperties(pathData)
         
         const _parts = smartPropToPart({ properties })
-        console.log({_parts})
         setParts(_parts)
 
         focusPath()
@@ -97,7 +96,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
 
             const cam = camRef?.current
             if(cam) {
-                console.log({cam})
                 
                 const xDiff  = maxVals.maxX - maxVals.minX
                 const yDiff = maxVals.maxY - maxVals.minY

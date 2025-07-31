@@ -14,6 +14,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
     //setting up hooks
 
     const bodyRefs = useRef([])
+    const hasNastyVals = useRef(false)
     const bodyType = useRef('fixed')
     const { dampingRef, timestampRef } = useContext(ThreedyContext)
     
@@ -48,7 +49,21 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
     }
 
     if(bodyRefs.current.length !== parts.length) {
-        bodyRefs.current = Array(parts.length).fill().map((_, i) => bodyRefs.current[i] || React.createRef(null))
+        bodyRefs.current = Array(parts.length).fill().map((_, i) => {
+            // return bodyRefs.current[i] || React.createRef(null)
+            if(bodyRefs.current[i]) {
+                return bodyRefs.current[i]
+            }
+            else {
+                console.log(`whoops there are nasty vals`)
+                hasNastyVals.current = true
+                return React.createRef(null)
+            }
+        })
+    }
+
+    if(hasNastyVals.current) {
+        console.log(bodyRefs.current)
     }
 
 
@@ -78,24 +93,6 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
         setTimeout(() => { bodyType.current = 'dynamic'}, 100)        
     }, [parts])
 
-    // useEffect(() => {
-    //     console.log(`isdrawinggg`)
-    //     if(isDrawing) {
-    //         setJointSize(100)
-    //     } else {
-    //         setJointSize(0.1)
-    //     }
-    // },[isDrawing])
-
-    // useEffect(() => {
-    //     console.log(triggerRerender)
-    //     hack(triggerRerender + 1)
-    // }, [triggerRerender])
-
-    // useEffect(() => {
-    //     dampingRef.current = parseInt(damping)
-    // }, [damping])
-
     useEffect(() => {
         const handlePointerUp =  () => { 
             setOrbitControls(true); 
@@ -117,12 +114,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
         const body = bodyRefs.current[draggingIndexRef.current]
 
         const pts = bodyRefs.current.map((body) => {
-            return body.current.translation()
-
-            // if(!body?.current?.translation()) {
-            //     return body.current.translation()
-            // }
-            // return { x: 0, y: 0, z: 0}
+            return body.current?.translation()
         })
         const elapsed = performance.now() - timestampRef.current;
         if (elapsed > 10000) return
@@ -189,7 +181,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
                     <RigidBody ref={bodyRefs.current[index]} linearDamping={4} canSleep
                        position={position} type={bodyType.current} colliders={"cuboid"} sensor>
                         <mesh key={`mesh_${index}`} rotation={rotation} >
-                            <boxGeometry args={[partLength,0.3,10]} />
+                            <boxGeometry args={[partLength,0.5,10]} />
                             <meshStandardMaterial 
                             transparent opacity={0}
                             />
