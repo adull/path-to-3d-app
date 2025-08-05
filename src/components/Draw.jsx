@@ -3,6 +3,7 @@ import { paper } from 'paper'
 import { getMaxVals } from '../helpers/index'
 
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
+import { view } from 'paper/dist/paper-core'
 
 const Draw = ({ setSvgData, resetVersion }) => {
     const parentRef = useRef(null)
@@ -11,7 +12,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
     const {threedyPointsRef, isDraggingRef, timestampRef} = useContext(ThreedyPointsContext)
     const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
-    const framesToEaseScaling = 1000
+    const framesToEaseScaling = 10000
     const framesLeftToSkipRef = useRef(0) 
 
     useEffect(() => {
@@ -26,6 +27,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
 
             const canvas = document.getElementById('paper')
             if(canvas) {
+                console.log(`there is a canvas and i am setting the viewsize to: w: ${width}, h:${height}`)
                 paper.view.viewSize = new paper.Size(width, height)
                 paper.view.update()
             }
@@ -132,9 +134,10 @@ const Draw = ({ setSvgData, resetVersion }) => {
                 
           
                 const viewBounds = paper.view.bounds;
+                // console.log({ viewBounds})
                 let padding = 20;
-                let xPadding = 0
-                let yPadding = 0
+                let xPadding = padding
+                let yPadding = padding
           
                 let minX = Infinity, minY = Infinity;
                 let maxX = -Infinity, maxY = -Infinity;
@@ -154,72 +157,29 @@ const Draw = ({ setSvgData, resetVersion }) => {
                 let dataWidth = maxX - minX;
                 let dataHeight = maxY - minY;
     
-                // first time we scale
-                if(currentFrameRef.current < framesToEaseScaling) {
-                    const find = paper.project.getItems({ name: 'bruh' })
-                    // console.log(find[0])
-                    const pointsFromSegments = find[0].segments.map(segment => segment.point)
-                    // console.log({viewBounds})
-                    const maxVals = getMaxVals(pointsFromSegments)
-                    // console.log({ maxVals})
-    
-                    
-                      xPadding = maxVals.minX
-                    // yPadding = viewBounds.height - maxVals.minY
-                    yPadding = maxVals.minY
-                    // console.log({xPadding, yPadding})
-    
-    
-          
-                // console.log({viewBounds})
-                const offsetX = xPadding;
-                const offsetY = yPadding;
-    
-                const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-                const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-                // console.log({scaleX, scaleY})
-                // console.log({ scaleX })
-                const scale = Math.min(scaleX, scaleY);
-          
-                const _offsetX = viewBounds.left + padding;
-                const _offsetY = viewBounds.top + padding;
-          
-                threedyPointsRef.current.forEach(({ x, y }) => {
-                    // console.log(`point`)
-                  const normalizedX = (x - minX) + offsetX;
-                  const _normalizedX = (x - minX) * scale + _offsetX;
-                  const flippedY = maxY - y;
-                  const normalizedY = flippedY + offsetY;
-                  const _normalizedY = flippedY * scale + _offsetY;
-    
-                  const frameIndex = currentFrameRef.current
-    
-                  const t = frameIndex / framesToEaseScaling;
-    
-                //   const easeInOut = (t) => 0.5 * (1 - Math.cos(Math.PI * t));
-                const easeInOutQuart = (t) => t < 0.5
-                            ? 8 * t * t * t * t
-                            : 1 - Math.pow(-2 * t + 2, 4) / 2;
-                const easedT = easeInOutQuart(t);
-    
-                const _x = normalizedX * (1 - easedT) + _normalizedX * easedT;
-                const _y = normalizedY * (1 - easedT) + _normalizedY * easedT;
-    
-                path.add(new paper.Point(_x, _y));
-    
-                if(isDraggingRef.current) {
-                    currentFrameRef.current = currentFrameRef.current + 1
-                }
-    
-                });
-                 
+                let scale
+                const tooWide = maxX > viewBounds.width
+                const tooTall = maxY > viewBounds.height
+                if(tooWide || tooTall) {
+                  console.log({ tooWide, tooTall})
+                  const scaleX = (viewBounds.width - padding * 2) / dataWidth;
+                  const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+                  scale = Math.min(scaleX, scaleY);
                 } else {
-                    const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-                const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-                const scale = Math.min(scaleX, scaleY);
+                  scale = 1
+                }
+
+                if(!tooTall) {
+                  yPadding = minY
+                }
+                if(!tooWide) {
+                  xPadding = minX
+                }
           
-                const offsetX = viewBounds.left + padding;
-                const offsetY = viewBounds.top + padding;
+                const offsetX = viewBounds.left + xPadding;
+                const offsetY = viewBounds.top + yPadding;
+
+                // console.log({ offsetX, offsetY})
           
                 threedyPointsRef.current.forEach(({ x, y }) => {
                   const normalizedX = (x - minX) * scale + offsetX;
@@ -227,7 +187,6 @@ const Draw = ({ setSvgData, resetVersion }) => {
                   const normalizedY = flippedY * scale + offsetY;
                   path.add(new paper.Point(normalizedX, normalizedY));
                 });   
-                }
     
                 if(find.length !== 0) {
                     find[0].remove()

@@ -135,6 +135,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
         body.current?.applyImpulse(force, true)
     })
 
+
     const dragClosestRigidBody = (e) => {
         updateTimestamp()
         setOrbitControls(false);
@@ -174,13 +175,13 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
 
             const position = [ midX, midY, z]
             const rotation = [0,0, part.angle]
-            const partLength = part.length > 20 ? 20 : part.length
+            const partLength = part.length
             
             return (
                 <group key={`rigidBody_${index}`}>
                     <RigidBody ref={bodyRefs.current[index]} linearDamping={4} canSleep
                        position={position} type={bodyType.current} colliders={"cuboid"} sensor>
-                        <mesh key={`mesh_${index}`} rotation={rotation} >
+                        <mesh key={`mesh_${index}`} rotation={rotation}>
                             <boxGeometry args={[partLength,0.5,10]} />
                             <meshStandardMaterial 
                             transparent opacity={0}

@@ -9,6 +9,7 @@ export default function Tube({ onDrag, bodyRefs, dontrender }) {
 
   const meshRef = useRef()
   const fatMeshRef = useRef()
+  const colorRef = useRef('')
 
   const ToonMaterial = shaderMaterial(
     toonShader.uniforms,
@@ -41,23 +42,32 @@ export default function Tube({ onDrag, bodyRefs, dontrender }) {
     } 
   })
 
+  const bruh = (e) => {
+    // e.preventDefault()
+    colorRef.current = 'red'
+    onDrag(e)
+  }
+  const resetColor = () => {
+    colorRef.current = ''
+  }
+
   if(bodyRefs.length > 0) {
+    console.log(colorRef.current)
     return (
       <group>
         {isMobile && (
-        <mesh ref={fatMeshRef} onPointerDown={onDrag}>
+        <mesh ref={fatMeshRef} onPointerDown={bruh} onPointerUp={resetColor}>
           <bufferGeometry attach="geometry" />
-          <meshStandardMaterial 
+          <meshStandardMaterial color={onDrag ? 'red' : ''} 
           transparent opacity={0} 
           />
         </mesh>
       )}
-        <mesh ref={meshRef} onPointerDown={!isMobile ? onDrag : null }>
+        <mesh ref={meshRef} onPointerDown={!isMobile ? bruh : null } transparent opacity={0} >
           <bufferGeometry attach="geometry" />
-          <toonMaterial
-            uColor={new THREE.Color('white')}
-            uLight={new THREE.Vector3(5, 5, 5)}
-            />
+          <meshStandardMaterial color={colorRef.current} 
+          // transparent opacity={0} 
+          />
         </mesh>
       </group>
       )
