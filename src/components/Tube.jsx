@@ -4,7 +4,7 @@ import { extend, useFrame } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
 import { toonShader } from '../helpers/shaders'
 
-export default function Tube({ onDrag, bodyRefs, dontrender }) {
+export default function Tube({ onDrag, bodyRefs }) {
   const [isMobile, setIsMobile] = useState(false)
 
   const meshRef = useRef()

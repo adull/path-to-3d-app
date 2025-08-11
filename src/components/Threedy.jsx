@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, forwardRef } from 'react'
-import { extractPathData, propertiesToParts, smartPropToPart, dumbPropToPart } from '../helpers/index'
+import { extractPathData, smartPropToPart } from '../helpers/index'
 import { svgPathProperties } from 'svg-path-properties'
 
 import { Canvas } from '@react-three/fiber'
@@ -14,12 +14,11 @@ import ChainCylinders from './ChainCylinders'
 import * as THREE from 'three'
 
 
-const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimestamp, resetVersion }) => {
+const Threedy = ({ svgData, updatePoints, setIsDragging, updateTimestamp, resetVersion }) => {
     const [parts, setParts] = useState([])
     
     const [orbitControlsEnabled, setOrbitControlsEnabled] = useState(true)
     
-    const [exportRef, setExportRef] = useState(null)
     const [boxPos, setBoxPos] = useState({ x: 0, y: 0, z: 0 })
 
     
@@ -32,11 +31,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
       })
 
     useEffect(() => {
-        // console.log(`mount`)
-        // console.log(gridRef.current)
-    }, [])
-
-    useEffect(() => {
         const cam = camRef.current;
         if(gridRef.current && cam) {
             gridRef.current.position.y = 0
@@ -46,6 +40,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
 
     useEffect(() => {
         if(controlsRef?.current) controlsRef.current.enabled = false
+        console.log({ svgData })
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         
@@ -71,26 +66,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
         return () => clearTimeout(timeout);
       }, [resetVersion]);
 
-    const download = () => {
-        const exporter = new OBJExporter()
-        const objText = exporter.parse(exportRef?.current)
-
-        const blob = new Blob([objText], { type: 'text/plain' })
-        const url = URL.createObjectURL(blob)
-
-        const link = document.createElement('a')
-        link.style.visibility = 'none'
-        link.href = url
-        link.download = 'model.obj'
-        link.click()
-    }
-
-    // const moveCamera = ({ minX, maxX, minY, maxY}) => {
-    //     console.log({ minX, maxX, minY, maxY })
-    // }
-
     const focusPath = (maxVals) => {
-        // console.log({ maxVals })
         if(maxVals) {
             const offset = 1.25
 
@@ -112,8 +88,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
                 cam.updateProjectionMatrix();
 
                 // update grid
-                // console.log(gridRef.current)
-                // console.log(maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20)
                 gridRef.current.position.y = maxVals.minY - (maxVals.maxY + maxVals.minY) / 2 - 20
             }
         }
@@ -134,8 +108,7 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, isDrawing, updateTimest
                                     focusPath={focusPath} 
                                     updatePoints={updatePoints}
                                     updateTimestamp={updateTimestamp}
-                                    setIsDragging={setIsDragging}
-                                    isDrawing={isDrawing} />
+                                    setIsDragging={setIsDragging} />
                 </Physics>
                 {orbitControlsEnabled ? <Controls makeDefault ref={controlsRef} /> : <></>}
                 <gridHelper

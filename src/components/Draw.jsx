@@ -42,12 +42,12 @@ const Draw = ({ setSvgData, resetVersion }) => {
 
     useEffect(() => {
         paper.setup("paper")
-        new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
+        new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'pathToFind' })
         
         const view = paper.view
 
         const updateSvg = () => {
-            const thepath = paper.project.getItems({ name: 'bruh' })[0]
+            const thepath = paper.project.getItems({ name: 'pathToFind' })[0]
 
             if(thepath.segments.length > 3) {
                 const svgData = thepath.exportSVG({ asString: true })
@@ -56,21 +56,18 @@ const Draw = ({ setSvgData, resetVersion }) => {
         }
 
         view.onMouseDrag = (event) => {
-            // setIsDrawing(true)
             isDrawing.current = true
-            const find = paper.project.getItems({ name: 'bruh' })
+            const find = paper.project.getItems({ name: 'pathToFind' })
             if(find.length === 0) {
-                const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'bruh' })
+                const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'pathToFind' })
                 path.add(event.point)
             } else {
-                const thepath = paper.project.getItems({ name: 'bruh' })[0]
+                const thepath = paper.project.getItems({ name: 'pathToFind' })[0]
                 thepath.add(event.point)
-                // console.log(event.point)
             }
         }
 
         view.onMouseUp = () => {
-            // setIsDrawing(false)
             isDrawing.current = false
             updateSvg()
         }
@@ -84,7 +81,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
         const path = new paper.Path({
           strokeColor: new paper.Color(0, 0, 0),
           strokeWidth: 8,
-          name: 'bruh',
+          name: 'pathToFind',
           strokeCap: 'round',
           data: {
             createdAt: performance.now()
@@ -93,7 +90,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
       
         let lastPointCount = 0;
       
-        paper.view.on('frame', (event) => {
+        paper.view.on('frame', () => {
             try {
                 if(isDrawing.current || !timestampRef.current) return
                 const elapsed = performance.now() - timestampRef.current;
@@ -103,7 +100,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
                     framesLeftToSkipRef.current = framesLeftToSkipRef.current - 1
                     return
                 }
-              const find = paper.project.getItems({ name: 'bruh' })
+              const find = paper.project.getItems({ name: 'pathToFind' })
               if (!threedyPointsRef.current || find.length === 0) return;
               if(threedyPointsRef.current[threedyPointsRef.current.length - 1] === undefined) {
                 framesLeftToSkipRef.current = 10
@@ -120,7 +117,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
                 const path = new paper.Path({
                     strokeColor: new paper.Color(0, 0, 0),
                     strokeWidth: 8,
-                    name: 'bruh',
+                    name: 'pathToFind',
                     strokeCap: 'round',
                     data: {
                       createdAt: performance.now()
@@ -156,7 +153,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
     
                 // first time we scale
                 if(currentFrameRef.current < framesToEaseScaling) {
-                    const find = paper.project.getItems({ name: 'bruh' })
+                    const find = paper.project.getItems({ name: 'pathToFind' })
                     // console.log(find[0])
                     const pointsFromSegments = find[0].segments.map(segment => segment.point)
                     // console.log({viewBounds})
@@ -196,7 +193,6 @@ const Draw = ({ setSvgData, resetVersion }) => {
     
                   const t = frameIndex / framesToEaseScaling;
     
-                //   const easeInOut = (t) => 0.5 * (1 - Math.cos(Math.PI * t));
                 const easeInOutQuart = (t) => t < 0.5
                             ? 8 * t * t * t * t
                             : 1 - Math.pow(-2 * t + 2, 4) / 2;
@@ -232,15 +228,9 @@ const Draw = ({ setSvgData, resetVersion }) => {
                 if(find.length !== 0) {
                     find[0].remove()
                 }
-              } else {
-                // console.log(`reset huh?`)
-                // const find = paper.project.getItems({ name: 'bruh' })
-                // if(find.length !== 0) {
-                //     find[0].remove()
-                // } 
               }
             } catch(err) {
-                const find = paper.project.getItems({ name: 'bruh' })
+                const find = paper.project.getItems({ name: 'pathToFind' })
                 if(find.length !== 0) {
                     find[0].remove()
                 }
@@ -257,7 +247,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
       }, []);
 
       useEffect(() => {
-        const find = paper.project.getItems({ name: 'bruh' })
+        const find = paper.project.getItems({ name: 'pathToFind' })
         if(find.length !== 0) {
             find[0].remove()
         }

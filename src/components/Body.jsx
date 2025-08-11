@@ -7,7 +7,6 @@ import Controls from './Controls'
 const Body = () => {
     const [svgData, setSvgData] = useState(null)
     const [height, setHeight] = useState(300)
-    const [isDrawing, setIsDrawing] = useState(false)
     const [resetVersion, setResetVersion] = useState(0)
 
     const dampingRef = useRef(4)
@@ -56,7 +55,7 @@ const Body = () => {
                             <Draw setSvgData={setSvgData} resetVersion={resetVersion} />
                         </div>
                         <div className="border b-1 border-x-0 md:border-r-1 border-t-0 md:border-t-1 border-black h-[50%] md:h-[100%] w-full md:w-1/2">
-                            <Threedy svgData={svgData} updatePoints={updatePoints} updateTimestamp={updateTimestamp} setIsDragging={updateDragging} isDrawing={isDrawing} resetVersion={resetVersion}/>
+                            <Threedy svgData={svgData} updatePoints={updatePoints} updateTimestamp={updateTimestamp} setIsDragging={updateDragging} resetVersion={resetVersion}/>
                         </div>
                     </div>
                     <Controls reset={reset} setDamping={updateDamping} />

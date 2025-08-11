@@ -1,11 +1,10 @@
-import React, { useRef, useState, useContext, useMemo, useEffect } from 'react'
+import React, { useRef, useContext, useMemo, useEffect } from 'react'
 import { getMaxVals } from '../helpers/index'
 import { RigidBody, InstancedRigidBodies } from "@react-three/rapier"
 import RopeJointBetween from "./RopeJointBetween"
 import Tube from "./Tube"
 import * as THREE from 'three'
-import { extend, useFrame } from '@react-three/fiber'
-import { toonShader } from '../helpers/shaders'
+import { useFrame } from '@react-three/fiber'
 
 import ThreedyContext from '../context/ThreedyPointsContext'
 
@@ -31,21 +30,6 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
 
         const maxVals = getMaxVals(points)
         return { points, maxVals }
-    }
-
-    const setOffset = (points, maxVals) => {
-        // console.log({ maxVals })
-        const avgX = (maxVals?.maxX + maxVals?.minX) / 2
-        const avgY = (maxVals?.maxY + maxVals?.minY) / 2
-
-        // const newPts = points.map(pt => new THREE.Vector3(pt.x - avgX, pt.y - avgY, pt.z))
-        // console.log({ newPts })
-        // pointsRef.current = newPts
-
-        // console.log({ x: avgX ? avgX : 0, y: avgY ? avgY : 0 })
-
-        return { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
-        // offsetRef.current = { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
     }
 
     if(bodyRefs.current.length !== parts.length) {
@@ -80,17 +64,12 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
 
         return { x: avgX ? avgX : 0, y: avgY ? avgY : 0 }
 
-        
-        // return { x: 0, y: 0}
-
     }, [parts])
-    // const offset = { x: 0, y: 0}
-    // useeffect zone
     useEffect(() => {
         bodyType.current = 'fixed'
-        const {points, maxVals} = getPtsAndMaxVals()
+        const { maxVals } = getPtsAndMaxVals()
         focusPath(maxVals)
-        setTimeout(() => { bodyType.current = 'dynamic'}, 100)        
+        setTimeout(() => { bodyType.current = 'dynamic' }, 100)        
     }, [parts])
 
     useEffect(() => {
@@ -99,7 +78,6 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
             if(draggingIndexRef.current > 0) {
                 
                 draggingIndexRef.current = -1;
-                //  setTimeout(() => setIsDragging(false), timeoutLength)
                 setIsDragging(false)
                 updateTimestamp()
             }

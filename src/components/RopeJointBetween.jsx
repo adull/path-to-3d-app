@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { useSpringJoint } from '@react-three/rapier';
 import ThreedyPointsContext from '../context/ThreedyPointsContext';
 
-const RopeJointBetween = ({ length, bodyA, bodyB, stiffness }) => {
+const RopeJointBetween = ({ length, bodyA, bodyB }) => {
 
   const { dampingRef } = useContext(ThreedyPointsContext)
   const damping = dampingRef.current ? parseInt(dampingRef.current) : 10000
