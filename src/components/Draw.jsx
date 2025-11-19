@@ -4,7 +4,7 @@ import { getMaxVals } from '../helpers/index'
 
 import ThreedyPointsContext from '../context/ThreedyPointsContext'
 
-const Draw = ({ setSvgData, resetVersion }) => {
+const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
     const parentRef = useRef(null)
     const childRef = useRef(null)
     const [display, setDisplay] = useState({ width: 0, height: 0})
@@ -13,6 +13,13 @@ const Draw = ({ setSvgData, resetVersion }) => {
     const currentFrameRef = useRef(1)
     const framesToEaseScaling = 1000
     const framesLeftToSkipRef = useRef(0) 
+    const ctRef = useRef(colorTracing)
+
+
+    useEffect(() => {
+      console.log(colorTracing )
+      ctRef.current = colorTracing
+    }, [colorTracing])
 
     useEffect(() => {
         console.log(`useeffect [] draw`)
@@ -113,9 +120,13 @@ const Draw = ({ setSvgData, resetVersion }) => {
                 if (lastPointCount === 0) return;
           
                 // path.removeSegments(); // Clear previous drawing
-    
+                const colors = [new paper.Color(0, 0, 0), new paper.Color(148, 0, 211), new paper.Color(75, 0, 130),new paper.Color(0, 0, 255),new paper.Color(0, 255, 0),new paper.Color(255, 255, 0),new paper.Color(255, 127, 0),new paper.Color(255, 0, 0)]
+                const t = Math.floor(performance.now() / 100)
+                const index = t % colors.length
+                // console.log(ctRef.current)
+                // console.log(colors[index])
                 const path = new paper.Path({
-                    strokeColor: new paper.Color(0, 0, 0),
+                    strokeColor: ctRef.current ? colors[index] : new paper.Color(0, 0, 0),
                     strokeWidth: 8,
                     name: 'pathToFind',
                     strokeCap: 'round',
@@ -123,11 +134,7 @@ const Draw = ({ setSvgData, resetVersion }) => {
                       createdAt: performance.now()
                     }
                   });
-    
-    
-          
-                
-          
+
                 const viewBounds = paper.view.bounds;
                 let padding = 20;
                 let xPadding = 0
@@ -211,22 +218,30 @@ const Draw = ({ setSvgData, resetVersion }) => {
                  
                 } else {
                     const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-                const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-                const scale = Math.min(scaleX, scaleY);
-          
-                const offsetX = viewBounds.left + padding;
-                const offsetY = viewBounds.top + padding;
-          
-                threedyPointsRef.current.forEach(({ x, y }) => {
-                  const normalizedX = (x - minX) * scale + offsetX;
-                  const flippedY = maxY - y;
-                  const normalizedY = flippedY * scale + offsetY;
-                  path.add(new paper.Point(normalizedX, normalizedY));
-                });   
+                  const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+                  const scale = Math.min(scaleX, scaleY);
+            
+                  const offsetX = viewBounds.left + padding;
+                  const offsetY = viewBounds.top + padding;
+            
+                  threedyPointsRef.current.forEach(({ x, y }) => {
+                    const normalizedX = (x - minX) * scale + offsetX;
+                    const flippedY = maxY - y;
+                    const normalizedY = flippedY * scale + offsetY;
+                    path.add(new paper.Point(normalizedX, normalizedY));
+                  });   
                 }
     
                 if(find.length !== 0) {
+                  // console.log(colorTracing )
+                  if(ctRef.current) {
+                    if(find.length > 100) {
+                      find[0].remove()
+                      // return
+                    }
+                  } else {
                     find[0].remove()
+                  }
                 }
               }
             } catch(err) {
@@ -249,7 +264,9 @@ const Draw = ({ setSvgData, resetVersion }) => {
       useEffect(() => {
         const find = paper.project.getItems({ name: 'pathToFind' })
         if(find.length !== 0) {
-            find[0].remove()
+          for(let i = 0; i < find.length; i ++) {
+            find[i].remove()
+          }
         }
       }, [resetVersion])
 
