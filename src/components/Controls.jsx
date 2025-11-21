@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import DampingContext from '../context/DampingContext'
 
 const Controls = ({ reset, colorTracing, setColorTracing, setDamping }) => {
     const [damping, fuckingSetDamping] = useState(4)
@@ -17,7 +16,7 @@ const Controls = ({ reset, colorTracing, setColorTracing, setDamping }) => {
                 <div className={`flex`}>
                     <label type="label" style={{marginRight: 5}}>Stiffness</label>
 
-                    <input value={damping} onChange={(e) => iHateReact(e.target.value)} min={1} max={100} type="range"></input>
+                    <input value={damping} onChange={(e) => iHateReact(e.target.value)} min={1} max={15} type="range"></input>
                 </div>
                 <div className={`flex`}>
                     <label style={{marginRight: 5}}>Color Tracing</label>
