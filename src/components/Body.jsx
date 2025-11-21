@@ -15,8 +15,6 @@ const Body = () => {
     const isDraggingRef = useRef(false)
     const timestampRef = useRef(null)
 
-    const fuck = (val) => {console.log(val)}
-
     const gameRef = useRef(null)
 
     const reset = (e) => {
@@ -50,7 +48,6 @@ const Body = () => {
         dampingRef.current = val
     }
 
-    console.log({ colorTracing })
     
     return (
         <ThreedyPointsContext.Provider value={{threedyPointsRef, isDraggingRef, dampingRef, timestampRef}}>

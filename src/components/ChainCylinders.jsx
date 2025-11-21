@@ -47,7 +47,7 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
     }
 
     if(hasNastyVals.current) {
-        console.log(bodyRefs.current)
+        // console.log(bodyRefs.current)
     }
 
 
@@ -142,7 +142,6 @@ const ChainCylinders = ({ parts, setOrbitControls, focusPath, updatePoints, upda
 
         draggingIndexRef.current = closestIndex
       };
-      console.log(`chain culinders rerender`)
     return (
         <>
         {parts.map((part, index) => {

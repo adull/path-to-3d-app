@@ -40,7 +40,6 @@ const Threedy = ({ svgData, updatePoints, setIsDragging, updateTimestamp, resetV
 
     useEffect(() => {
         if(controlsRef?.current) controlsRef.current.enabled = false
-        console.log({ svgData })
         const pathData = extractPathData(svgData)
         const properties = new svgPathProperties(pathData)
         

@@ -11,15 +11,14 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
     const {threedyPointsRef, isDraggingRef, timestampRef} = useContext(ThreedyPointsContext)
     const isDrawing = useRef(false)
     const currentFrameRef = useRef(1)
+    const ctRef = useRef(null)
     const framesToEaseScaling = 1000
     const framesLeftToSkipRef = useRef(0) 
-    const ctRef = useRef(colorTracing)
+    const scaleRef = useRef(1)
 
-
-    useEffect(() => {
-      console.log(colorTracing )
-      ctRef.current = colorTracing
-    }, [colorTracing])
+  useEffect(() => {
+    ctRef.current = colorTracing
+  }, [colorTracing])
 
     useEffect(() => {
         console.log(`useeffect [] draw`)
@@ -54,24 +53,25 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
         const view = paper.view
 
         const updateSvg = () => {
-            const thepath = paper.project.getItems({ name: 'pathToFind' })[0]
+            const path = paper.project.getItems({ name: 'pathToFind' })[0]
 
-            if(thepath.segments.length > 3) {
-                const svgData = thepath.exportSVG({ asString: true })
+            if(path.segments.length > 3) {
+                const svgData = path.exportSVG({ asString: true })
                 setSvgData(svgData)
             }
         }
 
         view.onMouseDrag = (event) => {
-            isDrawing.current = true
-            const find = paper.project.getItems({ name: 'pathToFind' })
-            if(find.length === 0) {
-                const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'pathToFind' })
-                path.add(event.point)
-            } else {
-                const thepath = paper.project.getItems({ name: 'pathToFind' })[0]
-                thepath.add(event.point)
-            }
+          isDrawing.current = true
+          const find = paper.project.getItems({ name: 'pathToFind' })
+          if(find.length === 0) {
+              const path = new paper.Path({ strokeColor: 'black', strokeWidth: 8, strokeCap: 'round', name: 'pathToFind' })
+              path.add(event.point)
+          } else {
+              const path = paper.project.getItems({ name: 'pathToFind' })[0]
+              path.add(event.point)
+          }
+          updateSvg()
         }
 
         view.onMouseUp = () => {
@@ -103,7 +103,7 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
                 const elapsed = performance.now() - timestampRef.current;
                 if (elapsed > 10000) return
                 if(framesLeftToSkipRef.current > 0) {
-                    console.log(framesLeftToSkipRef.current)
+                    // console.log(framesLeftToSkipRef.current)
                     framesLeftToSkipRef.current = framesLeftToSkipRef.current - 1
                     return
                 }
@@ -123,8 +123,6 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
                 const colors = [new paper.Color(0, 0, 0), new paper.Color(148, 0, 211), new paper.Color(75, 0, 130),new paper.Color(0, 0, 255),new paper.Color(0, 255, 0),new paper.Color(255, 255, 0),new paper.Color(255, 127, 0),new paper.Color(255, 0, 0)]
                 const t = Math.floor(performance.now() / 100)
                 const index = t % colors.length
-                // console.log(ctRef.current)
-                // console.log(colors[index])
                 const path = new paper.Path({
                     strokeColor: ctRef.current ? colors[index] : new paper.Color(0, 0, 0),
                     strokeWidth: 8,
@@ -143,7 +141,6 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
                 let minX = Infinity, minY = Infinity;
                 let maxX = -Infinity, maxY = -Infinity;
     
-                // console.log({ptsss: threedyPointsRef.current})
                 threedyPointsRef.current.forEach(item => {
                     if(!item?.x || !item?.y ) {
                         return
@@ -161,86 +158,76 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
                 // first time we scale
                 if(currentFrameRef.current < framesToEaseScaling) {
                     const find = paper.project.getItems({ name: 'pathToFind' })
-                    // console.log(find[0])
                     const pointsFromSegments = find[0].segments.map(segment => segment.point)
-                    // console.log({viewBounds})
                     const maxVals = getMaxVals(pointsFromSegments)
-                    // console.log({ maxVals})
-    
-                    
-                      xPadding = maxVals.minX
-                    // yPadding = viewBounds.height - maxVals.minY
+                    xPadding = maxVals.minX
                     yPadding = maxVals.minY
-                    // console.log({xPadding, yPadding})
-    
-    
           
-                // console.log({viewBounds})
-                const offsetX = xPadding;
-                const offsetY = yPadding;
-    
-                const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-                const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-                // console.log({scaleX, scaleY})
-                // console.log({ scaleX })
-                const scale = Math.min(scaleX, scaleY);
+                    const offsetX = xPadding
+                    const offsetY = yPadding
+        
+                    const scaleX = (viewBounds.width - padding * 2) / dataWidth
+                    const scaleY = (viewBounds.height - padding * 2) / dataHeight
+                    const scale = Math.min(scaleX, scaleY)
+              
+                    const _offsetX = viewBounds.left + padding
+                    const _offsetY = viewBounds.top + padding
+              
+                    threedyPointsRef.current.forEach(({ x, y }) => {
+                        // console.log(`point`)
+                      const normalizedX = (x - minX) + offsetX
+                      const _normalizedX = (x - minX) * scale + _offsetX
+                      const flippedY = maxY - y
+                      const normalizedY = flippedY + offsetY
+                      const _normalizedY = flippedY * scale + _offsetY
+        
+                      const frameIndex = currentFrameRef.current
+        
+                      const t = frameIndex / framesToEaseScaling
+        
+                      const easeInOutQuart = (t) => t < 0.5
+                                  ? 8 * t * t * t * t
+                                  : 1 - Math.pow(-2 * t + 2, 4) / 2
+                    const easedT = easeInOutQuart(t)
           
-                const _offsetX = viewBounds.left + padding;
-                const _offsetY = viewBounds.top + padding;
+                      const _x = normalizedX * (1 - easedT) + _normalizedX * easedT
+                      const _y = normalizedY * (1 - easedT) + _normalizedY * easedT
           
-                threedyPointsRef.current.forEach(({ x, y }) => {
-                    // console.log(`point`)
-                  const normalizedX = (x - minX) + offsetX;
-                  const _normalizedX = (x - minX) * scale + _offsetX;
-                  const flippedY = maxY - y;
-                  const normalizedY = flippedY + offsetY;
-                  const _normalizedY = flippedY * scale + _offsetY;
-    
-                  const frameIndex = currentFrameRef.current
-    
-                  const t = frameIndex / framesToEaseScaling;
-    
-                const easeInOutQuart = (t) => t < 0.5
-                            ? 8 * t * t * t * t
-                            : 1 - Math.pow(-2 * t + 2, 4) / 2;
-                const easedT = easeInOutQuart(t);
-    
-                const _x = normalizedX * (1 - easedT) + _normalizedX * easedT;
-                const _y = normalizedY * (1 - easedT) + _normalizedY * easedT;
-    
-                path.add(new paper.Point(_x, _y));
-    
-                if(isDraggingRef.current) {
-                    currentFrameRef.current = currentFrameRef.current + 1
-                }
-    
-                });
+                      path.add(new paper.Point(_x, _y));
+          
+                      if(isDraggingRef.current) {
+                          currentFrameRef.current = currentFrameRef.current + 1
+                      }
+      
+                  });
                  
                 } else {
                     const scaleX = (viewBounds.width - padding * 2) / dataWidth;
-                  const scaleY = (viewBounds.height - padding * 2) / dataHeight;
-                  const scale = Math.min(scaleX, scaleY);
-            
-                  const offsetX = viewBounds.left + padding;
-                  const offsetY = viewBounds.top + padding;
-            
-                  threedyPointsRef.current.forEach(({ x, y }) => {
-                    const normalizedX = (x - minX) * scale + offsetX;
-                    const flippedY = maxY - y;
-                    const normalizedY = flippedY * scale + offsetY;
-                    path.add(new paper.Point(normalizedX, normalizedY));
-                  });   
+                    const scaleY = (viewBounds.height - padding * 2) / dataHeight;
+                    const scale = Math.min(scaleX, scaleY);
+                    scaleRef.current = scale
+              
+                    const offsetX = viewBounds.left + padding;
+                    const offsetY = viewBounds.top + padding;
+              
+                    threedyPointsRef.current.forEach(({ x, y }) => {
+                      const normalizedX = (x - minX) * scale + offsetX;
+                      const flippedY = maxY - y;
+                      const normalizedY = flippedY * scale + offsetY;
+                      path.add(new paper.Point(normalizedX, normalizedY));
+                    });   
                 }
     
                 if(find.length !== 0) {
-                  // console.log(colorTracing )
                   if(ctRef.current) {
                     if(find.length > 100) {
                       find[0].remove()
                       // return
                     }
                   } else {
-                    find[0].remove()
+                    for(let i = 0; i < find.length; i ++) {
+                      find[i].remove()
+                    }
                   }
                 }
               }
@@ -270,7 +257,6 @@ const Draw = ({ setSvgData, colorTracing, resetVersion }) => {
         }
       }, [resetVersion])
 
-    console.log(`render draw`)
     return (
         <div className="w-full h-full flex flex-col" ref={parentRef}>
             <canvas 
